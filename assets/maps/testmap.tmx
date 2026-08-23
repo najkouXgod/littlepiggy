@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="20">
+ <tileset firstgid="1" source="tileset.tsx"/>
+ <layer id="2" name="grass" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2BgAQsUj4KRCViwYGqaRU3zR8EoGAWjgFgAAFR/AEU=
+  </data>
+ </layer>
+ <layer id="6" name="ground" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2BgARMQM2IRZ6a3Q0bBgABGLJiaZlHT/FEwCkbBKCAWAAB3TAAW
+  </data>
+ </layer>
+ <objectgroup id="5" name="collisions">
+  <object id="8" x="512" y="672" width="640" height="32"/>
+  <object id="13" x="1088" y="352" width="64"/>
+  <object id="14" x="704" y="352" width="128" height="32"/>
+  <object id="19" x="1216" y="608" width="320" height="32"/>
+ </objectgroup>
+</map>
