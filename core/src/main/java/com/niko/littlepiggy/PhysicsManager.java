@@ -11,7 +11,7 @@ public class PhysicsManager {
     private final Box2DDebugRenderer debugRen;
 
     public PhysicsManager() {
-        world = new World(new Vector2(0, -9.8f), true );
+        world = new World(new Vector2(0, -14f), true);
         debugRen = new Box2DDebugRenderer();
     }
 
@@ -22,12 +22,15 @@ public class PhysicsManager {
     public void step(float delta) {
         world.step(delta, 6, 2);
     }
+
     public void renderDebug(OrthographicCamera camera) {
         debugRen.render(world, camera.combined);
     }
+
     public World getWorld() {
         return world;
     }
+
     public void dispose() {
         world.dispose();
         debugRen.dispose();

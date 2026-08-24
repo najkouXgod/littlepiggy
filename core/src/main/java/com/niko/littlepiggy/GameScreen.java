@@ -3,6 +3,7 @@ package com.niko.littlepiggy;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.niko.littlepiggy.Apple;
 
 public class GameScreen extends BaseScreen {
 
@@ -11,9 +12,10 @@ public class GameScreen extends BaseScreen {
     private final PhysicsManager physics;
     private final MapManager mapManager;
     private final Player player;
+    private final Apple apple;
     private final SpriteBatch batch;
 
-    public GameScreen( Main game, String mapName ) {
+    public GameScreen(Main game, String mapName) {
         super();
         this.game = game;
 
@@ -23,6 +25,8 @@ public class GameScreen extends BaseScreen {
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
         physics.setContactListener(player);
+
+        apple = new Apple(physics.getWorld(), game.getAssets(), 10, 11);
 
         batch = new SpriteBatch();
     }
@@ -48,6 +52,7 @@ public class GameScreen extends BaseScreen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         player.render(batch);
+        apple.render(batch);
         batch.end();
 
         if (debugOverlay != null) {
@@ -59,7 +64,8 @@ public class GameScreen extends BaseScreen {
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
-        if (debugOverlay != null) debugOverlay.resize(width, height);
+        if (debugOverlay != null)
+            debugOverlay.resize(width, height);
     }
 
     @Override
@@ -67,6 +73,7 @@ public class GameScreen extends BaseScreen {
         batch.dispose();
         mapManager.dispose();
         physics.dispose();
-        if (debugOverlay != null) debugOverlay.dispose();
+        if (debugOverlay != null)
+            debugOverlay.dispose();
     }
 }
