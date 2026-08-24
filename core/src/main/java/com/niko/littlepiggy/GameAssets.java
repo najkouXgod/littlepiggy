@@ -12,6 +12,9 @@ public class GameAssets extends AssetManager {
     public static final String PIG_RUNNING = "piggy/running.png";
     public static final String PIG_CHARGING = "piggy/charging.png";
 
+    public static final String FARMER_IDLE = "farmer/farmer.png";
+    public static final String FARMER_SHOOTING = "farmer/shooting.png";
+
     public static final String APPLE = "items/apple.png";
 
     public GameAssets() {
@@ -22,6 +25,8 @@ public class GameAssets extends AssetManager {
         manager.load(PIG_IDLE, Texture.class);
         manager.load(PIG_RUNNING, Texture.class);
         manager.load(PIG_CHARGING, Texture.class);
+        manager.load(FARMER_IDLE, Texture.class);
+        manager.load(FARMER_SHOOTING, Texture.class);
         manager.load(APPLE, Texture.class);
     }
 

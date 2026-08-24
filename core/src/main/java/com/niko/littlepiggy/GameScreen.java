@@ -8,11 +8,16 @@ import com.niko.littlepiggy.Apple;
 public class GameScreen extends BaseScreen {
 
     private DebugOverlay debugOverlay;
+
     private final Main game;
+
     private final PhysicsManager physics;
     private final MapManager mapManager;
+
     private final Player player;
+    private final Farmer farmer;
     private final Apple apple;
+
     private final SpriteBatch batch;
 
     public GameScreen(Main game, String mapName) {
@@ -25,6 +30,8 @@ public class GameScreen extends BaseScreen {
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
         physics.setContactListener(player);
+
+        farmer = new Farmer(physics.getWorld(), game.getAssets(), 14, 11);
 
         apple = new Apple(physics.getWorld(), game.getAssets(), 10, 11);
 
@@ -41,6 +48,11 @@ public class GameScreen extends BaseScreen {
         ScreenUtils.clear(Color.BLUE);
 
         physics.step(delta);
+
+        if (apple.isCollected()) {
+            apple.removeBody();
+        }
+
         player.update();
 
         camera.position.set(player.getX(), player.getY(), 0);
@@ -50,9 +62,13 @@ public class GameScreen extends BaseScreen {
         physics.renderDebug(camera);
 
         batch.setProjectionMatrix(camera.combined);
+
         batch.begin();
+
         player.render(batch);
+        farmer.render(batch);
         apple.render(batch);
+
         batch.end();
 
         if (debugOverlay != null) {

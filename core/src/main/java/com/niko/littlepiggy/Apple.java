@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.*;
 public class Apple {
 
     private final Sprite sprite;
-    private final Body body;
+    private Body body;
     private boolean collected = false;
 
     public Apple(World world, GameAssets assets, float x, float y) {
@@ -45,6 +45,13 @@ public class Apple {
 
     public void collect() {
         collected = true;
+    }
+
+    public void removeBody() {
+        if (body != null) {
+            body.getWorld().destroyBody(body);
+            body = null;
+        }
     }
 
     public boolean isCollected() {
