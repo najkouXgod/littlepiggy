@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.physics;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;

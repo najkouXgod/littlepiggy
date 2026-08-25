@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.world;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.MapLayer;

@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.screen;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

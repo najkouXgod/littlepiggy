@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.screen;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;

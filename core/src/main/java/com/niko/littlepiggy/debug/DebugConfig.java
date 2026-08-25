@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.debug;
 
 public class DebugConfig {
     public static float SPEED = 4f;

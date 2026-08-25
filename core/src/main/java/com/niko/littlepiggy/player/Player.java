@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

@@ -1,4 +1,4 @@
-package com.niko.littlepiggy;
+package com.niko.littlepiggy.projectile;
 
 import com.niko.littlepiggy.Projectile;
 import com.badlogic.gdx.math.Vector2;
