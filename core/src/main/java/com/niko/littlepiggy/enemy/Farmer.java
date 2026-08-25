@@ -1,5 +1,7 @@
 package com.niko.littlepiggy.enemy;
 
+import com.niko.littlepiggy.assets.GameAssets;
+
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;

@@ -1,5 +1,8 @@
 package com.niko.littlepiggy;
 
+import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.screen.GameScreen;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;

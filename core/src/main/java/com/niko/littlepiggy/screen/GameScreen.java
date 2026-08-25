@@ -3,7 +3,16 @@ package com.niko.littlepiggy.screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.niko.littlepiggy.Apple;
+
+import com.niko.littlepiggy.player.Player;
+import com.niko.littlepiggy.item.Apple;
+import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.enemy.Farmer;
+import com.niko.littlepiggy.debug.DebugConfig;
+import com.niko.littlepiggy.debug.DebugOverlay;
+import com.niko.littlepiggy.Main;
+import com.niko.littlepiggy.physics.PhysicsManager;
+import com.niko.littlepiggy.world.MapManager;
 
 public class GameScreen extends BaseScreen {
 

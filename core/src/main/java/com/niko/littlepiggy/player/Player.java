@@ -1,5 +1,8 @@
 package com.niko.littlepiggy.player;
 
+import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.debug.DebugConfig;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
