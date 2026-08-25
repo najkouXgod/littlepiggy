@@ -6,6 +6,12 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class Farmer {
 
+    private static final float SHOOT_RANGE = 4f;
+    private static final float SHOOT_INTERVAL = 2f;
+
+    private boolean playerInRange;
+    private float shootCooldown;
+
     private final Sprite sprite;
     private final Body body;
 
@@ -14,7 +20,7 @@ public class Farmer {
         sprite = new Sprite(
                 assets.getTexture(GameAssets.FARMER_IDLE));
 
-        sprite.setSize(1f, 1f);
+        sprite.setSize(1.5f, 1.5f);
 
         sprite.setPosition(
                 x - sprite.getWidth() / 2f,
@@ -41,6 +47,18 @@ public class Farmer {
         Fixture fixture = body.createFixture(fixtureDef);
         fixture.setUserData(this);
 
+        CircleShape rangeShape = new CircleShape();
+        rangeShape.setRadius(SHOOT_RANGE);
+
+        FixtureDef rangeFixtureDef = new FixtureDef();
+        rangeFixtureDef.shape = rangeShape;
+        rangeFixtureDef.isSensor = true;
+
+        Fixture rangeFixture = body.createFixture(rangeFixtureDef);
+        rangeFixture.setUserData("farmerRange");
+
+        rangeShape.dispose();
+
         shape.dispose();
     }
 
@@ -48,9 +66,31 @@ public class Farmer {
         sprite.draw(batch);
     }
 
-    public void update() {
+    public void update(float delta) {
+
         sprite.setPosition(
                 body.getPosition().x - sprite.getWidth() / 2f,
                 body.getPosition().y - sprite.getHeight() / 2f);
+
+        if (shootCooldown > 0) {
+            shootCooldown -= delta;
+        }
+
+        if (playerInRange && shootCooldown <= 0) {
+            shoot();
+            shootCooldown = SHOOT_INTERVAL;
+        }
+    }
+
+    public void playerEnteredRange() {
+        playerInRange = true;
+    }
+
+    public void playerExitedRange() {
+        playerInRange = false;
+    }
+
+    private void shoot() {
+        System.out.println("PANG!");
     }
 }

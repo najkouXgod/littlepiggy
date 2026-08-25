@@ -15,8 +15,8 @@ public class PhysicsManager {
         debugRen = new Box2DDebugRenderer();
     }
 
-    public void setContactListener(Player player) {
-        world.setContactListener(new GameContactListener(player));
+    public void setContactListener(Player player, Farmer farmer) {
+        world.setContactListener(new GameContactListener(player, farmer));
     }
 
     public void step(float delta) {

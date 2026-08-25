@@ -63,6 +63,7 @@ public class Player {
         bodyDef.position.set(startX, startY);
         bodyDef.fixedRotation = true;
         body = world.createBody(bodyDef);
+        body.setUserData(this);
         // Player-COLLIDER
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(sprite.getWidth() / 3f, sprite.getHeight() / 4, new Vector2(0, -0.2f), 0);

@@ -29,9 +29,10 @@ public class GameScreen extends BaseScreen {
         mapManager.createCollisions(physics.getWorld());
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
-        physics.setContactListener(player);
 
         farmer = new Farmer(physics.getWorld(), game.getAssets(), 14, 11);
+
+        physics.setContactListener(player, farmer);
 
         apple = new Apple(physics.getWorld(), game.getAssets(), 10, 11);
 
@@ -54,6 +55,7 @@ public class GameScreen extends BaseScreen {
         }
 
         player.update();
+        farmer.update(delta);
 
         camera.position.set(player.getX(), player.getY(), 0);
         camera.update();
