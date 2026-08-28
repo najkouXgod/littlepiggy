@@ -1,4 +1,6 @@
-package com.niko.littlepiggy.Apple;
+package com.niko.littlepiggy.item;
+
+import com.niko.littlepiggy.assets.GameAssets;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

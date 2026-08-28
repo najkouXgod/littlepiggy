@@ -63,7 +63,7 @@ public class GameScreen extends BaseScreen {
             apple.removeBody();
         }
 
-        player.update();
+        player.update(delta);
         farmer.update(delta);
 
         camera.position.set(player.getX(), player.getY(), 0);
