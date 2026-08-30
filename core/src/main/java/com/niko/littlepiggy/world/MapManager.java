@@ -1,5 +1,7 @@
 package com.niko.littlepiggy.world;
 
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -11,46 +13,92 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class MapManager {
+
+    private static final float PPM = 32f;
+
     private final TiledMap map;
     private final OrthogonalTiledMapRenderer mapRenderer;
 
-    public MapManager( String mapName ) {
-        map = new TmxMapLoader().load("maps/" + mapName + ".tmx");
-        mapRenderer = new OrthogonalTiledMapRenderer(map, 1/64f);
+    public MapManager(String mapName) {
+        map = new TmxMapLoader().load("maps/testmap/" + mapName + ".tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map, 1f / PPM);
     }
 
-    public void createCollisions( World world ) {
+    public void createCollisions(World world) {
         MapLayer collisionLayer = map.getLayers().get("collisions");
-        if ( collisionLayer == null ) return;
+
+        if (collisionLayer == null) {
+            return;
+        }
 
         for (MapObject obj : collisionLayer.getObjects()) {
-            if ( obj instanceof RectangleMapObject) {
-                RectangleMapObject rectangleObject = (RectangleMapObject) obj;
-                Rectangle rect = rectangleObject.getRectangle();
+
+            if (obj instanceof RectangleMapObject) {
+
+                Rectangle rect = ((RectangleMapObject) obj).getRectangle();
 
                 BodyDef bodyDef = new BodyDef();
                 bodyDef.type = BodyDef.BodyType.StaticBody;
-                bodyDef.position.set( ( rect.x + rect.width / 2 ) / 64f,
-                    ( rect.y + rect.height / 2 ) / 64f );
+
+                bodyDef.position.set(
+                        (rect.x + rect.width / 2f) / PPM,
+                        (rect.y + rect.height / 2f) / PPM);
 
                 Body body = world.createBody(bodyDef);
 
                 PolygonShape shape = new PolygonShape();
-                shape.setAsBox(rect.width/2/64f,
-                               rect.height/2/64f);
 
-                body.setUserData(this);
-                Fixture fixture = body.createFixture(shape, 0.0f);
+                shape.setAsBox(
+                        rect.width / 2f / PPM,
+                        rect.height / 2f / PPM);
+
+                Fixture fixture = body.createFixture(shape, 0f);
                 fixture.setUserData("ground");
+
+                shape.dispose();
+            }
+
+            else if (obj instanceof PolygonMapObject) {
+
+                Polygon polygon = ((PolygonMapObject) obj).getPolygon();
+
+                float[] vertices = polygon.getVertices();
+
+                float[] box2dVertices = new float[vertices.length];
+
+                /*
+                 * Polygonens vertices är lokala relativt
+                 * polygonens x/y-position i Tiled.
+                 */
+                for (int i = 0; i < vertices.length; i += 2) {
+
+                    box2dVertices[i] = (polygon.getX() + vertices[i]) / PPM;
+
+                    box2dVertices[i + 1] = (polygon.getY() + vertices[i + 1]) / PPM;
+                }
+
+                BodyDef bodyDef = new BodyDef();
+                bodyDef.type = BodyDef.BodyType.StaticBody;
+
+                Body body = world.createBody(bodyDef);
+
+                PolygonShape shape = new PolygonShape();
+                shape.set(box2dVertices);
+
+                Fixture fixture = body.createFixture(shape, 0f);
+
+                fixture.setUserData("ground");
+
                 shape.dispose();
             }
         }
     }
 
-    public void render( OrthographicCamera camera ) {
+    public void render(OrthographicCamera camera) {
         mapRenderer.setView(camera);
         mapRenderer.render();
     }
+
     public void dispose() {
         map.dispose();
         mapRenderer.dispose();
