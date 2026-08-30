@@ -1,13 +1,19 @@
 package com.niko.littlepiggy.enemy;
 
 import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.projectile.Pellet;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class Farmer {
 
+    private static final int PELLET_COUNT = 5;
+    private static final float SPREAD_DEGREES = 8f;
     private static final float SHOOT_RANGE = 4f;
     private static final float SHOOT_INTERVAL = 2f;
 
@@ -68,7 +74,7 @@ public class Farmer {
         sprite.draw(batch);
     }
 
-    public void update(float delta) {
+    public Array<Pellet> update(float delta, Vector2 playerPosition) {
 
         sprite.setPosition(
                 body.getPosition().x - sprite.getWidth() / 2f,
@@ -79,9 +85,11 @@ public class Farmer {
         }
 
         if (playerInRange && shootCooldown <= 0) {
-            shoot();
             shootCooldown = SHOOT_INTERVAL;
+            return createPellets(playerPosition);
         }
+
+        return null;
     }
 
     public void playerEnteredRange() {
@@ -92,7 +100,32 @@ public class Farmer {
         playerInRange = false;
     }
 
-    private void shoot() {
-        System.out.println("PANG!");
+    private Array<Pellet> createPellets(Vector2 playerPosition) {
+
+        Array<Pellet> pellets = new Array<>();
+
+        Vector2 baseDirection = new Vector2(playerPosition)
+                .sub(body.getPosition())
+                .nor();
+
+        for (int i = 0; i < PELLET_COUNT; i++) {
+
+            float angle = (MathUtils.random(-SPREAD_DEGREES / 2f, SPREAD_DEGREES / 2f)
+                    + MathUtils.random(-SPREAD_DEGREES / 2f, SPREAD_DEGREES / 2f))
+                    / 2f;
+
+            Vector2 direction = new Vector2(baseDirection).rotateDeg(angle);
+
+            float speedMultiplier = MathUtils.random(0.8f, 1.2f);
+
+            pellets.add(new Pellet(
+                    body.getWorld(),
+                    body.getPosition().x,
+                    body.getPosition().y,
+                    speedMultiplier,
+                    direction));
+        }
+
+        return pellets;
     }
 }
