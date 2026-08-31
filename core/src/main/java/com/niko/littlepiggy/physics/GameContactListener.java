@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.physics;
 
+import com.niko.littlepiggy.projectile.Projectile;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.enemy.Farmer;
 import com.niko.littlepiggy.item.Apple;
@@ -21,6 +22,8 @@ public class GameContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
+
+        checkProjectileContact(a, b);
 
         String aName = a.getUserData() != null ? a.getUserData().toString() : "NULL";
         String bName = b.getUserData() != null ? b.getUserData().toString() : "NULL";
@@ -75,6 +78,31 @@ public class GameContactListener implements ContactListener {
             Apple apple = (Apple) b.getUserData();
             apple.collect();
         }
+    }
+
+    private void checkProjectileContact(Fixture a, Fixture b) {
+
+        Projectile projectile = null;
+        Fixture other = null;
+
+        if (a.getUserData() instanceof Projectile) {
+            projectile = (Projectile) a.getUserData();
+            other = b;
+        } else if (b.getUserData() instanceof Projectile) {
+            projectile = (Projectile) b.getUserData();
+            other = a;
+        }
+
+        if (projectile == null) {
+            return;
+        }
+
+        // Träffar mark
+        if ("ground".equals(other.getUserData())) {
+            projectile.markForRemoval();
+        }
+
+        // Player tar vi i nästa steg
     }
 
     private void checkFarmerRange(Fixture a, Fixture b, boolean entered) {

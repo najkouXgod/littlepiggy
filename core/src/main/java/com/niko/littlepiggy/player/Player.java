@@ -64,6 +64,10 @@ public class Player {
         return physics.getY();
     }
 
+    public Vector2 getPosition() {
+        return physics.getPosition();
+    }
+
     public Vector2 getVelocity() {
         return physics.getVelocity();
     }

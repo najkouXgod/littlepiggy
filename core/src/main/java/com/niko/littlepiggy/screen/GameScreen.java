@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import com.niko.littlepiggy.projectile.Pellet;
+import com.niko.littlepiggy.projectile.ProjectileManager;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.item.Apple;
 import com.niko.littlepiggy.assets.GameAssets;
@@ -22,6 +24,7 @@ public class GameScreen extends BaseScreen {
 
     private final PhysicsManager physics;
     private final MapManager mapManager;
+    private final ProjectileManager projectileManager;
 
     private final Player player;
     private final Farmer farmer;
@@ -34,6 +37,8 @@ public class GameScreen extends BaseScreen {
         this.game = game;
 
         physics = new PhysicsManager();
+        projectileManager = new ProjectileManager(
+                physics.getWorld());
         mapManager = new MapManager(mapName);
         mapManager.createCollisions(physics.getWorld());
 
@@ -64,7 +69,8 @@ public class GameScreen extends BaseScreen {
         }
 
         player.update(delta);
-        farmer.update(delta);
+        projectileManager.addAll(farmer.update(delta, player.getPosition()));
+        projectileManager.update(delta);
 
         camera.position.set(player.getX(), player.getY(), 0);
         camera.update();

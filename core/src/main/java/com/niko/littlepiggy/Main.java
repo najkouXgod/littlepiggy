@@ -21,7 +21,7 @@ public class Main extends Game {
         assets.loadAll();
         assets.finishLoading();
 
-        setScreen(new GameScreen(this, "testmap"));
+        setScreen(new GameScreen(this, "map"));
     }
 
     public GameAssets getAssets() {

@@ -7,11 +7,11 @@ public class PlayerPhysics {
 
     private static final float BODY_HALF_WIDTH = 0.30f;
     private static final float BODY_HALF_HEIGHT = 0.45f;
-    private static final float BODY_OFFSET_Y = -0.05f;
+    private static final float BODY_OFFSET_Y = 0.05f;
 
     private static final float FOOT_HALF_WIDTH = 0.20f;
-    private static final float FOOT_HALF_HEIGHT = 0.05f;
-    private static final float FOOT_OFFSET_Y = -0.52f;
+    private static final float FOOT_HALF_HEIGHT = 0.1f;
+    private static final float FOOT_OFFSET_Y = -0.55f;
 
     private final Body body;
 

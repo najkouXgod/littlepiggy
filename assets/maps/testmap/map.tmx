@@ -1,46 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="60">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="11" nextobjectid="154">
  <tileset firstgid="1" source="terrain.tsx"/>
- <layer id="3" name="Mark" width="60" height="25">
+ <layer id="8" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0DsKwCAQRVFNTJHCKmDt/lcZBQsRf4iQj/fAg0EG9CkEAAAAAAAAsIazY+cozF90RbNxkSFerdsbesfv9dlc9kJUsmsH7nuys82c6UZmSrvP/AuZyZ/d+fIBOQ==
+   eJzt07sKwCAMhWF7AYfOff9XrYEIIhGHCpLwf3AGNw9JUgIAAAAAAIAlT96RPCWH5iy5m3c00vXd/YnFRrsarWu7p1Y8dO1nVTvJ3V2aen8e+sx4nNEfH99CAOc=
   </data>
  </layer>
- <objectgroup id="5" name="collisions">
-  <object id="33" x="0.130435" y="787" width="22.6087" height="5.17391"/>
-  <object id="34" x="22.7391" y="787.043" width="33.5217" height="5.08696"/>
-  <object id="35" x="56.2174" y="787" width="39.7826" height="9.6087"/>
-  <object id="36" x="96" y="787.273" width="21.4545" height="6.18182"/>
-  <object id="37" x="96.1875" y="787">
-   <polygon points="0,0 124.358,-63.7273 21.6307,0.0909091"/>
-  </object>
-  <object id="38" x="220.75" y="723.25" width="0.25"/>
-  <object id="42" x="221.25" y="723.75" width="100.25" height="9.25"/>
-  <object id="43" x="321.636" y="723.909">
-   <polygon points="0,0 29.7273,12.2727 -0.0909091,11.6364"/>
-  </object>
-  <object id="44" x="351.364" y="736.364" width="57.4545" height="4.45455"/>
-  <object id="45" x="409" y="736.273" width="76.4545" height="4.36364"/>
-  <object id="46" x="485.545" y="736.455" width="83.1818" height="4.27273"/>
-  <object id="47" x="546" y="736.364">
-   <polygon points="0,0 28.1818,-12.3636 22.7273,0"/>
-  </object>
-  <object id="48" x="574.5" y="723.75" width="96.75" height="6"/>
-  <object id="49" x="671.636" y="723.636">
-   <polygon points="0,0 61.697,-31.9697 55.3636,-0.636364"/>
-  </object>
-  <object id="50" x="733" y="691.75" width="66.25" height="9.25"/>
-  <object id="53" x="834.5" y="687.438" width="28.4375" height="0.5"/>
-  <object id="54" x="898.5" y="655.063" width="28.25" height="0.6875"/>
-  <object id="55" x="994.313" y="655.125" width="28.4375" height="0.6875"/>
-  <object id="56" x="1058.19" y="687.125" width="28.625" height="0.6875"/>
-  <object id="57" x="1090.38" y="719.063" width="28.375" height="0.75"/>
-  <object id="58" x="1186.38" y="751.188" width="28.375" height="0.6875"/>
-  <object id="59" x="1314.35" y="751.043" width="27.1739" height="0.826087"/>
- </objectgroup>
- <layer id="4" name="Ramp" width="60" height="25">
+ <layer id="9" name="Decor1" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzjEBAAAIAyBTeNs/pS22BxIwAwAAAABAw7YDQdcOBDxb0AA3
+   eJztz7ENACAMA7A+wEz/vxTmHlBEZUtR1iQCAAAAAPjVej2g2b7Jkokm/crSkx3PLwDN
   </data>
  </layer>
 </map>
