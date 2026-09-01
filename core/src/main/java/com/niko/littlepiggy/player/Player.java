@@ -14,13 +14,12 @@ public class Player {
     private final PlayerAnimator animator;
 
     public Player(
-            PlayerStats playerStats,
             World world,
             float startX,
             float startY,
             GameAssets assets) {
 
-        this.playerStats = playerStats;
+        playerStats = new PlayerStats(100f);
 
         physics = new PlayerPhysics(
                 world,
@@ -98,5 +97,17 @@ public class Player {
 
     public void applyKnockback(float x, float y) {
         physics.applyImpulse(x, y);
+    }
+
+    public void takeDamage(float amount) {
+        playerStats.takeDamage(amount);
+    }
+
+    public float getHealth() {
+        return playerStats.getHealth();
+    }
+
+    public boolean isDead() {
+        return playerStats.isDead();
     }
 }

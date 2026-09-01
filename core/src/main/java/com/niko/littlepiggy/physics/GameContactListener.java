@@ -97,12 +97,32 @@ public class GameContactListener implements ContactListener {
             return;
         }
 
-        // Träffar mark
-        if ("ground".equals(other.getUserData())) {
-            projectile.markForRemoval();
+        // Projektilen har redan träffat något denna physics-step
+        if (projectile.shouldRemove()) {
+            return;
         }
 
-        // Player tar vi i nästa steg
+        // Ground
+        if ("ground".equals(other.getUserData())) {
+            projectile.markForRemoval();
+            return;
+        }
+
+        // Player
+        if (other.getBody().getUserData() instanceof Player) {
+
+            player.takeDamage(projectile.getDamage());
+
+            Vector2 knockback = projectile.getKnockbackImpulse();
+
+            player.applyKnockback(
+                    knockback.x,
+                    knockback.y);
+
+            projectile.markForRemoval();
+
+            return;
+        }
     }
 
     private void checkFarmerRange(Fixture a, Fixture b, boolean entered) {

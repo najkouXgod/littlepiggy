@@ -10,7 +10,7 @@ public class Pellet extends Projectile {
     private static final float DAMAGE = 5f;
     private static final float RADIUS = 0.04f;
     private static final float MAX_LIFETIME = 2f;
-    private static final float KNOCKBACK = 0.25f;
+    private static final float KNOCKBACK = 2f;
 
     public Pellet(
             World world,

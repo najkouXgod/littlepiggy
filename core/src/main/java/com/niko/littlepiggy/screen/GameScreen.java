@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
+import com.niko.littlepiggy.projectile.ProjectileRenderer;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.item.Apple;
@@ -28,9 +28,9 @@ public class GameScreen extends BaseScreen {
     private final PhysicsManager physics;
     private final MapManager mapManager;
     private final ProjectileManager projectileManager;
+    private final ProjectileRenderer projectileRenderer;
 
     private final Player player;
-    private final PlayerStats playerStats;
     private final Farmer farmer;
     private final Apple apple;
 
@@ -45,11 +45,11 @@ public class GameScreen extends BaseScreen {
         physics = new PhysicsManager();
         projectileManager = new ProjectileManager(
                 physics.getWorld());
+        projectileRenderer = new ProjectileRenderer();
         mapManager = new MapManager(mapName);
         mapManager.createCollisions(physics.getWorld());
-        playerStats = new PlayerStats(100);
 
-        player = new Player(playerStats, physics.getWorld(), 9, 11, game.getAssets());
+        player = new Player(physics.getWorld(), 9, 11, game.getAssets());
 
         farmer = new Farmer(physics.getWorld(), game.getAssets(), 14, 11);
 
@@ -93,6 +93,9 @@ public class GameScreen extends BaseScreen {
         batch.end();
 
         mapManager.render(camera);
+
+        projectileRenderer.render(camera, projectileManager);
+
         physics.renderDebug(camera);
 
         batch.begin();
@@ -121,6 +124,7 @@ public class GameScreen extends BaseScreen {
         batch.dispose();
         mapManager.dispose();
         physics.dispose();
+        projectileRenderer.dispose();
         if (debugOverlay != null)
             debugOverlay.dispose();
     }

@@ -14,9 +14,10 @@ public class Farmer {
 
     private static final int PELLET_COUNT = 5;
     private static final float SPREAD_DEGREES = 8f;
-    private static final float SHOOT_RANGE = 4f;
+    private static final float SHOOT_RANGE = 6f;
     private static final float SHOOT_INTERVAL = 2f;
 
+    private boolean facingLeft;
     private boolean playerInRange;
     private float shootCooldown;
 
@@ -76,6 +77,10 @@ public class Farmer {
 
     public Array<Pellet> update(float delta, Vector2 playerPosition) {
 
+        facingLeft = playerPosition.x < body.getPosition().x;
+
+        sprite.setFlip(!facingLeft, false);
+
         sprite.setPosition(
                 body.getPosition().x - sprite.getWidth() / 2f,
                 body.getPosition().y - sprite.getHeight() / 2f);
@@ -84,7 +89,7 @@ public class Farmer {
             shootCooldown -= delta;
         }
 
-        if (playerInRange && shootCooldown <= 0) {
+        if (playerInRange && hasLineOfSight(playerPosition) && shootCooldown <= 0) {
             shootCooldown = SHOOT_INTERVAL;
             return createPellets(playerPosition);
         }
@@ -98,6 +103,35 @@ public class Farmer {
 
     public void playerExitedRange() {
         playerInRange = false;
+    }
+
+    private boolean hasLineOfSight(Vector2 playerPosition) {
+
+        final boolean[] blocked = { false };
+
+        body.getWorld().rayCast(
+                (fixture, point, normal, fraction) -> {
+
+                    // Ignorera Farmers egna fixtures
+                    if (fixture.getBody() == body) {
+                        return 1f;
+                    }
+
+                    // Vägg/mark ligger mellan Farmer och Player
+                    if ("ground".equals(fixture.getUserData())) {
+                        blocked[0] = true;
+
+                        // Vi behöver inte fortsätta raycasten
+                        return 0f;
+                    }
+
+                    // Ignorera exempelvis sensors och annat
+                    return 1f;
+                },
+                body.getPosition(),
+                playerPosition);
+
+        return !blocked[0];
     }
 
     private Array<Pellet> createPellets(Vector2 playerPosition) {
