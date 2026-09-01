@@ -8,15 +8,19 @@ import com.niko.littlepiggy.assets.GameAssets;
 
 public class Player {
 
+    private final PlayerStats playerStats;
     private final PlayerPhysics physics;
     private final PlayerController controller;
     private final PlayerAnimator animator;
 
     public Player(
+            PlayerStats playerStats,
             World world,
             float startX,
             float startY,
             GameAssets assets) {
+
+        this.playerStats = playerStats;
 
         physics = new PlayerPhysics(
                 world,

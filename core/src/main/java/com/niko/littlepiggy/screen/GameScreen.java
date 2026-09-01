@@ -1,12 +1,15 @@
 package com.niko.littlepiggy.screen;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
 import com.niko.littlepiggy.player.Player;
+import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.item.Apple;
 import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.enemy.Farmer;
@@ -27,8 +30,11 @@ public class GameScreen extends BaseScreen {
     private final ProjectileManager projectileManager;
 
     private final Player player;
+    private final PlayerStats playerStats;
     private final Farmer farmer;
     private final Apple apple;
+
+    private final Texture sky;
 
     private final SpriteBatch batch;
 
@@ -41,14 +47,17 @@ public class GameScreen extends BaseScreen {
                 physics.getWorld());
         mapManager = new MapManager(mapName);
         mapManager.createCollisions(physics.getWorld());
+        playerStats = new PlayerStats(100);
 
-        player = new Player(physics.getWorld(), 9, 11, game.getAssets());
+        player = new Player(playerStats, physics.getWorld(), 9, 11, game.getAssets());
 
         farmer = new Farmer(physics.getWorld(), game.getAssets(), 14, 11);
 
         physics.setContactListener(player, farmer);
 
         apple = new Apple(physics.getWorld(), game.getAssets(), 10, 11);
+
+        sky = game.getAssets().getTexture(GameAssets.SKY);
 
         batch = new SpriteBatch();
     }
@@ -75,10 +84,16 @@ public class GameScreen extends BaseScreen {
         camera.position.set(player.getX(), player.getY(), 0);
         camera.update();
 
+        batch.setProjectionMatrix(camera.combined);
+
+        batch.begin();
+
+        batch.draw(sky, camera.position.x - 16f, camera.position.y - 4.5f, 32f, 9f);
+
+        batch.end();
+
         mapManager.render(camera);
         physics.renderDebug(camera);
-
-        batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
 

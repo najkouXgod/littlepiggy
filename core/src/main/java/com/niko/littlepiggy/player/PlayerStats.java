@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.player;
 
+import com.badlogic.gdx.math.Vector2;
 import com.niko.littlepiggy.player.Player;
 
 public class PlayerStats {
@@ -15,9 +16,9 @@ public class PlayerStats {
         health += amount;
     }
 
-    public void takeDamage(int amount) {
+    public Vector2 takeDamage(int amount, Vector2 knockback) {
         health -= amount;
-        player.applyKnockback(2, 0);
+        return knockback;
     }
 
 }

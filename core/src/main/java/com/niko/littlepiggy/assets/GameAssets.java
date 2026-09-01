@@ -8,6 +8,7 @@ public class GameAssets {
 
     private final AssetManager manager;
 
+    public static final String SKY = "background/bg.png";
     public static final String PIG_IDLE = "piggy/idle.png";
     public static final String PIG_RUNNING = "piggy/running.png";
     public static final String PIG_CHARGING = "piggy/charging.png";
@@ -28,6 +29,7 @@ public class GameAssets {
         manager.load(FARMER_IDLE, Texture.class);
         manager.load(FARMER_SHOOTING, Texture.class);
         manager.load(APPLE, Texture.class);
+        manager.load(SKY, Texture.class);
     }
 
     public void finishLoading() {
