@@ -6,7 +6,9 @@ import com.badlogic.gdx.physics.box2d.*;
 public abstract class Projectile {
 
     protected final Body body;
+
     protected final float damage;
+    protected final float knockback;
 
     protected float lifeTime;
     protected boolean remove;
@@ -18,9 +20,11 @@ public abstract class Projectile {
             Vector2 direction,
             float speed,
             float damage,
-            float radius) {
+            float radius,
+            float knockback) {
 
         this.damage = damage;
+        this.knockback = knockback;
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -69,6 +73,14 @@ public abstract class Projectile {
 
     public Body getBody() {
         return body;
+    }
+
+    public Vector2 getKnockbackImpulse() {
+
+        return body.getLinearVelocity()
+                .cpy()
+                .nor()
+                .scl(knockback);
     }
 
     protected abstract float getMaxLifeTime();

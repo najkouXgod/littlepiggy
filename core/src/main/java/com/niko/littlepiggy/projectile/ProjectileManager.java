@@ -38,4 +38,8 @@ public class ProjectileManager {
         }
     }
 
+    public Array<Projectile> getProjectiles() {
+        return projectiles;
+    }
+
 }
