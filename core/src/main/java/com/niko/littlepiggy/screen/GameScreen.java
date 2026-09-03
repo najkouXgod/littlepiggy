@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Array;
 
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
@@ -24,6 +25,7 @@ public class GameScreen extends BaseScreen {
     private DebugOverlay debugOverlay;
 
     private final Main game;
+    private final String mapName;
 
     private final PhysicsManager physics;
     private final MapManager mapManager;
@@ -32,7 +34,8 @@ public class GameScreen extends BaseScreen {
 
     private final Player player;
     private final Farmer farmer;
-    private final Apple apple;
+
+    private final Array<Apple> apples;
 
     private final Texture sky;
 
@@ -41,6 +44,7 @@ public class GameScreen extends BaseScreen {
     public GameScreen(Main game, String mapName) {
         super();
         this.game = game;
+        this.mapName = mapName;
 
         physics = new PhysicsManager();
         projectileManager = new ProjectileManager(
@@ -55,7 +59,9 @@ public class GameScreen extends BaseScreen {
 
         physics.setContactListener(player, farmer);
 
-        apple = new Apple(physics.getWorld(), game.getAssets(), 10, 11);
+        apples = mapManager.createApples(
+                physics.getWorld(),
+                game.getAssets());
 
         sky = game.getAssets().getTexture(GameAssets.SKY);
 
@@ -73,8 +79,21 @@ public class GameScreen extends BaseScreen {
 
         physics.step(delta);
 
-        if (apple.isCollected()) {
-            apple.removeBody();
+        if (player.isDead()) {
+            game.setScreen(
+                    new GameOverScreen(game, mapName));
+
+            dispose();
+            return;
+        }
+        for (int i = apples.size - 1; i >= 0; i--) {
+
+            Apple apple = apples.get(i);
+
+            if (apple.isCollected()) {
+                apple.removeBody();
+                apples.removeIndex(i);
+            }
         }
 
         player.update(delta);
@@ -102,7 +121,9 @@ public class GameScreen extends BaseScreen {
 
         player.render(batch);
         farmer.render(batch);
-        apple.render(batch);
+        for (Apple apple : apples) {
+            apple.render(batch);
+        }
 
         batch.end();
 

@@ -69,14 +69,16 @@ public class GameContactListener implements ContactListener {
 
     private void checkAppleContact(Fixture a, Fixture b) {
 
-        if (a.getUserData() instanceof Apple) {
-            Apple apple = (Apple) a.getUserData();
-            apple.collect();
+        if (a.getUserData() instanceof Apple
+                && b.getBody().getUserData() instanceof Player) {
+
+            ((Apple) a.getUserData()).collect();
         }
 
-        if (b.getUserData() instanceof Apple) {
-            Apple apple = (Apple) b.getUserData();
-            apple.collect();
+        if (b.getUserData() instanceof Apple
+                && a.getBody().getUserData() instanceof Player) {
+
+            ((Apple) b.getUserData()).collect();
         }
     }
 

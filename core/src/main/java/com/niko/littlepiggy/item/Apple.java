@@ -1,21 +1,28 @@
 package com.niko.littlepiggy.item;
 
-import com.niko.littlepiggy.assets.GameAssets;
-
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class Apple {
 
+    private final float BODY_RADIUS = 0.15f;
     private final Sprite sprite;
     private Body body;
-    private boolean collected = false;
+    private boolean collected;
 
-    public Apple(World world, GameAssets assets, float x, float y) {
+    public Apple(
+            World world,
+            TextureRegion texture,
+            float x,
+            float y) {
 
-        sprite = new Sprite(assets.getTexture(GameAssets.APPLE));
-        sprite.setSize(0.25f, 0.25f);
+        sprite = new Sprite(texture);
+
+        sprite.setSize(1f, 1f);
+
         sprite.setPosition(
                 x - sprite.getWidth() / 2f,
                 y - sprite.getHeight() / 2f);
@@ -27,7 +34,8 @@ public class Apple {
         body = world.createBody(bodyDef);
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(0.125f);
+        shape.setRadius(BODY_RADIUS);
+        shape.setPosition(new Vector2(0, 0.20f));
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
@@ -39,14 +47,12 @@ public class Apple {
         shape.dispose();
     }
 
-    public void render(SpriteBatch batch) {
-        if (!collected) {
-            sprite.draw(batch);
-        }
-    }
-
     public void collect() {
         collected = true;
+    }
+
+    public boolean isCollected() {
+        return collected;
     }
 
     public void removeBody() {
@@ -56,11 +62,9 @@ public class Apple {
         }
     }
 
-    public boolean isCollected() {
-        return collected;
-    }
-
-    public void dispose() {
-        body.getWorld().destroyBody(body);
+    public void render(SpriteBatch batch) {
+        if (!collected) {
+            sprite.draw(batch);
+        }
     }
 }

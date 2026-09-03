@@ -5,16 +5,38 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class PlayerPhysics {
 
-    private static final float BODY_HALF_WIDTH = 0.30f;
-    private static final float BODY_HALF_HEIGHT = 0.45f;
-    private static final float BODY_OFFSET_Y = 0.05f;
+    /*
+     * Kroppen byggs som en kapsel:
+     *
+     * _______
+     * ( )
+     * -------
+     *
+     * En box i mitten + en cirkel på varje sida.
+     *
+     * Justera dessa senare efter hur den nya grisen ser ut.
+     */
+    private static final float BODY_RADIUS = 0.20f;
+    private static final float BODY_HALF_LENGTH = 0.22f;
+    private static final float BODY_OFFSET_Y = -0.03f;
 
-    private static final float FOOT_HALF_WIDTH = 0.20f;
-    private static final float FOOT_HALF_HEIGHT = 0.1f;
-    private static final float FOOT_OFFSET_Y = -0.55f;
+    /*
+     * Två små foot sensors.
+     *
+     * gris
+     * (=======)
+     * • •
+     */
+    private static final float FOOT_X = 0.28f;
+    private static final float FOOT_Y = -0.30f;
+    private static final float FOOT_RADIUS = 0.055f;
 
     private final Body body;
 
+    /*
+     * Två foot sensors kan samtidigt röra flera fixtures,
+     * därför använder vi en counter istället för boolean.
+     */
     private int groundContacts;
 
     public PlayerPhysics(World world, float x, float y) {
@@ -30,41 +52,115 @@ public class PlayerPhysics {
 
         Body body = world.createBody(bodyDef);
 
-        // Main collider
-        PolygonShape bodyShape = new PolygonShape();
-        bodyShape.setAsBox(
-                BODY_HALF_WIDTH,
-                BODY_HALF_HEIGHT,
+        createMainCollider(body);
+        createFootSensors(body);
+
+        return body;
+    }
+
+    private void createMainCollider(Body body) {
+
+        /*
+         * Mitten av kapseln.
+         */
+        PolygonShape centerShape = new PolygonShape();
+
+        centerShape.setAsBox(
+                BODY_HALF_LENGTH,
+                BODY_RADIUS,
                 new Vector2(0, BODY_OFFSET_Y),
                 0);
 
-        FixtureDef bodyFixtureDef = new FixtureDef();
-        bodyFixtureDef.shape = bodyShape;
-        bodyFixtureDef.density = 1f;
-        bodyFixtureDef.friction = 0f;
+        FixtureDef centerFixtureDef = new FixtureDef();
+        centerFixtureDef.shape = centerShape;
+        centerFixtureDef.density = 5f;
+        centerFixtureDef.friction = 0f;
 
-        body.createFixture(bodyFixtureDef);
+        body.createFixture(centerFixtureDef);
 
-        bodyShape.dispose();
+        centerShape.dispose();
 
-        // Foot sensor
-        PolygonShape footShape = new PolygonShape();
-        footShape.setAsBox(
-                FOOT_HALF_WIDTH,
-                FOOT_HALF_HEIGHT,
-                new Vector2(0, FOOT_OFFSET_Y),
-                0);
+        /*
+         * Vänster rundning.
+         */
+        createBodyCircle(
+                body,
+                -BODY_HALF_LENGTH,
+                BODY_OFFSET_Y);
 
-        FixtureDef footFixtureDef = new FixtureDef();
-        footFixtureDef.shape = footShape;
-        footFixtureDef.isSensor = true;
+        /*
+         * Höger rundning.
+         */
+        createBodyCircle(
+                body,
+                BODY_HALF_LENGTH,
+                BODY_OFFSET_Y);
+    }
 
-        body.createFixture(footFixtureDef)
+    private void createBodyCircle(
+            Body body,
+            float offsetX,
+            float offsetY) {
+
+        CircleShape shape = new CircleShape();
+
+        shape.setRadius(BODY_RADIUS);
+
+        shape.setPosition(
+                new Vector2(offsetX, offsetY));
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+
+        /*
+         * Mitten-fixturen står för massan.
+         * Cirklarna används främst för collisionformen.
+         */
+        fixtureDef.density = 0f;
+        fixtureDef.friction = 0f;
+
+        body.createFixture(fixtureDef);
+
+        shape.dispose();
+    }
+
+    private void createFootSensors(Body body) {
+
+        createFootSensor(
+                body,
+                -FOOT_X,
+                FOOT_Y);
+
+        createFootSensor(
+                body,
+                FOOT_X,
+                FOOT_Y);
+    }
+
+    private void createFootSensor(
+            Body body,
+            float offsetX,
+            float offsetY) {
+
+        CircleShape shape = new CircleShape();
+
+        shape.setRadius(FOOT_RADIUS);
+
+        shape.setPosition(
+                new Vector2(offsetX, offsetY));
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+
+        /*
+         * Vi behåller "foot" just nu så din nuvarande
+         * GameContactListener fortsätter fungera.
+         */
+        body.createFixture(fixtureDef)
                 .setUserData("foot");
 
-        footShape.dispose();
-
-        return body;
+        shape.dispose();
     }
 
     public void setOwner(Object owner) {
@@ -94,6 +190,7 @@ public class PlayerPhysics {
     }
 
     public void jump(float xImpulse, float yImpulse) {
+
         body.applyLinearImpulse(
                 new Vector2(xImpulse, yImpulse),
                 body.getWorldCenter(),
@@ -101,6 +198,7 @@ public class PlayerPhysics {
     }
 
     public void applyImpulse(float x, float y) {
+
         body.applyLinearImpulse(
                 new Vector2(x, y),
                 body.getWorldCenter(),

@@ -27,37 +27,44 @@ public class PlayerAnimator {
 
     public PlayerAnimator(GameAssets assets) {
 
-        TextureRegion[] idleFrames = assets.getFrames(
-                GameAssets.PIG_IDLE,
-                2,
-                1);
+        TextureRegion[] idleFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                0,
+                3,
+                64,
+                64);
 
-        idleAnimation = new Animation<>(0.5f, idleFrames);
+        idleAnimation = new Animation<>(0.35f, idleFrames);
 
         idleAnimation.setPlayMode(
                 Animation.PlayMode.LOOP);
 
-        TextureRegion[] runningFrames = assets.getFrames(
-                GameAssets.PIG_RUNNING,
+        TextureRegion[] runningFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                1,
                 5,
-                1);
+                64,
+                64);
 
-        runningAnimation = new Animation<>(0.06f, runningFrames);
+        runningAnimation = new Animation<>(0.07f, runningFrames);
 
         runningAnimation.setPlayMode(
                 Animation.PlayMode.LOOP);
 
-        TextureRegion[] chargeFrames = assets.getFrames(
-                GameAssets.PIG_CHARGING,
+        TextureRegion[] chargeFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                2,
                 3,
-                1);
+                64,
+                64);
 
-        chargeAnimation = new Animation<>(0.06f, chargeFrames);
+        chargeAnimation = new Animation<>(0.08f, chargeFrames);
 
         chargeAnimation.setPlayMode(
                 Animation.PlayMode.NORMAL);
 
         sprite = new Sprite(idleFrames[0]);
+
         sprite.setSize(1f, 1f);
     }
 
@@ -73,8 +80,10 @@ public class PlayerAnimator {
 
         if (charging) {
             newState = AnimationState.CHARGING;
+
         } else if (moving) {
             newState = AnimationState.RUNNING;
+
         } else {
             newState = AnimationState.IDLE;
         }
@@ -91,20 +100,26 @@ public class PlayerAnimator {
         switch (currentState) {
 
             case RUNNING:
-                frame = runningAnimation.getKeyFrame(stateTime);
+                frame = runningAnimation
+                        .getKeyFrame(stateTime);
                 break;
 
             case CHARGING:
-                frame = chargeAnimation.getKeyFrame(stateTime);
+                frame = chargeAnimation
+                        .getKeyFrame(stateTime);
                 break;
 
             default:
-                frame = idleAnimation.getKeyFrame(stateTime);
+                frame = idleAnimation
+                        .getKeyFrame(stateTime);
                 break;
         }
 
         sprite.setRegion(frame);
-        sprite.setFlip(facingLeft, false);
+
+        sprite.setFlip(
+                facingLeft,
+                false);
 
         sprite.setPosition(
                 x - sprite.getWidth() / 2f,

@@ -10,7 +10,10 @@ import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.item.Apple;
+import com.niko.littlepiggy.assets.GameAssets;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -45,7 +48,9 @@ public class MapManager {
     public void createCollisions(World world) {
 
         for (MapLayer layer : map.getLayers()) {
-
+            if ("Apples".equals(layer.getName())) {
+                continue;
+            }
             if (!(layer instanceof TiledMapTileLayer)) {
                 continue;
             }
@@ -132,6 +137,56 @@ public class MapManager {
                     tileX,
                     tileY);
         }
+    }
+
+    public Array<Apple> createApples(
+            World world,
+            GameAssets assets) {
+
+        Array<Apple> apples = new Array<>();
+
+        MapLayer layer = map.getLayers().get("Apples");
+
+        if (!(layer instanceof TiledMapTileLayer)) {
+            return apples;
+        }
+
+        TiledMapTileLayer appleLayer = (TiledMapTileLayer) layer;
+
+        float tileWidth = appleLayer.getTileWidth();
+        float tileHeight = appleLayer.getTileHeight();
+
+        for (int x = 0; x < appleLayer.getWidth(); x++) {
+
+            for (int y = 0; y < appleLayer.getHeight(); y++) {
+
+                TiledMapTileLayer.Cell cell = appleLayer.getCell(x, y);
+
+                if (cell == null) {
+                    continue;
+                }
+
+                TiledMapTile tile = cell.getTile();
+
+                if (tile == null) {
+                    continue;
+                }
+
+                float worldX = (x * tileWidth + tileWidth / 2f) / PPM;
+
+                float worldY = (y * tileHeight + tileHeight / 2f) / PPM;
+
+                apples.add(
+                        new Apple(
+                                world,
+                                tile.getTextureRegion(),
+                                worldX,
+                                worldY));
+                appleLayer.setCell(x, y, null);
+            }
+        }
+
+        return apples;
     }
 
     private void createRectangleCollision(

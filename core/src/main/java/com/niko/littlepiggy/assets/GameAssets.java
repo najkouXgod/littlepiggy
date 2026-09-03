@@ -9,27 +9,28 @@ public class GameAssets {
     private final AssetManager manager;
 
     public static final String SKY = "background/bg.png";
-    public static final String PIG_IDLE = "piggy/idle.png";
-    public static final String PIG_RUNNING = "piggy/running.png";
-    public static final String PIG_CHARGING = "piggy/charging.png";
+
+    public static final String GAME_OVER = "screens/gameover.png";
+
+    public static final String PIG_SHEET = "piggy/piggysheet.png";
 
     public static final String FARMER_IDLE = "farmer/farmer.png";
-    public static final String FARMER_SHOOTING = "farmer/shooting.png";
 
-    public static final String APPLE = "items/apple.png";
+    public static final String FARMER_SHOOTING = "farmer/shooting.png";
 
     public GameAssets() {
         manager = new AssetManager();
     }
 
     public void loadAll() {
-        manager.load(PIG_IDLE, Texture.class);
-        manager.load(PIG_RUNNING, Texture.class);
-        manager.load(PIG_CHARGING, Texture.class);
+
+        manager.load(PIG_SHEET, Texture.class);
+
         manager.load(FARMER_IDLE, Texture.class);
         manager.load(FARMER_SHOOTING, Texture.class);
-        manager.load(APPLE, Texture.class);
+
         manager.load(SKY, Texture.class);
+        manager.load(GAME_OVER, Texture.class);
     }
 
     public void finishLoading() {
@@ -40,17 +41,37 @@ public class GameAssets {
         return manager.get(path, Texture.class);
     }
 
-    public TextureRegion[] getFrames(String path, int frameCols, int frameRows) {
+    /*
+     * Hämtar ett visst antal frames från
+     * en specifik rad i ett spritesheet.
+     *
+     * row är 0-indexerad:
+     *
+     * row 0 = idle
+     * row 1 = running
+     * row 2 = charging
+     * row 3 = jab
+     */
+    public TextureRegion[] getRowFrames(
+            String path,
+            int row,
+            int frameCount,
+            int frameWidth,
+            int frameHeight) {
+
         Texture texture = getTexture(path);
-        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / frameCols,
-                texture.getHeight() / frameRows);
-        TextureRegion[] frames = new TextureRegion[frameCols * frameRows];
-        int index = 0;
-        for (int i = 0; i < frameRows; i++) {
-            for (int j = 0; j < frameCols; j++) {
-                frames[index++] = tmp[i][j];
-            }
+
+        TextureRegion[][] sheet = TextureRegion.split(
+                texture,
+                frameWidth,
+                frameHeight);
+
+        TextureRegion[] frames = new TextureRegion[frameCount];
+
+        for (int i = 0; i < frameCount; i++) {
+            frames[i] = sheet[row][i];
         }
+
         return frames;
     }
 
