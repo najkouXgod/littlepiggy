@@ -33,8 +33,8 @@ public class GameScreen extends BaseScreen {
     private final ProjectileRenderer projectileRenderer;
 
     private final Player player;
-    private final Farmer farmer;
 
+    private final Array<Farmer> farmers;
     private final Array<Apple> apples;
 
     private final Texture sky;
@@ -55,10 +55,10 @@ public class GameScreen extends BaseScreen {
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
 
-        farmer = new Farmer(physics.getWorld(), game.getAssets(), 14, 11);
-
-        physics.setContactListener(player, farmer);
-
+        physics.setContactListener(player);
+        farmers = mapManager.createFarmers(
+                physics.getWorld(),
+                game.getAssets());
         apples = mapManager.createApples(
                 physics.getWorld(),
                 game.getAssets());
@@ -86,6 +86,15 @@ public class GameScreen extends BaseScreen {
             dispose();
             return;
         }
+
+        for (Farmer farmer : farmers) {
+
+            projectileManager.addAll(
+                    farmer.update(
+                            delta,
+                            player.getPosition()));
+        }
+
         for (int i = apples.size - 1; i >= 0; i--) {
 
             Apple apple = apples.get(i);
@@ -97,7 +106,14 @@ public class GameScreen extends BaseScreen {
         }
 
         player.update(delta);
-        projectileManager.addAll(farmer.update(delta, player.getPosition()));
+
+        for (Farmer farmer : farmers) {
+            projectileManager.addAll(
+                    farmer.update(
+                            delta,
+                            player.getPosition()));
+        }
+
         projectileManager.update(delta);
 
         camera.position.set(player.getX(), player.getY(), 0);
@@ -120,7 +136,9 @@ public class GameScreen extends BaseScreen {
         batch.begin();
 
         player.render(batch);
-        farmer.render(batch);
+        for (Farmer farmer : farmers) {
+            farmer.render(batch);
+        }
         for (Apple apple : apples) {
             apple.render(batch);
         }

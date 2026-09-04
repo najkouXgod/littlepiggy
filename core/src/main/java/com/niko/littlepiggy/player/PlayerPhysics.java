@@ -18,7 +18,7 @@ public class PlayerPhysics {
      */
     private static final float BODY_RADIUS = 0.20f;
     private static final float BODY_HALF_LENGTH = 0.22f;
-    private static final float BODY_OFFSET_Y = -0.03f;
+    private static final float BODY_OFFSET_Y = 0f;
 
     /*
      * Två små foot sensors.
@@ -28,7 +28,7 @@ public class PlayerPhysics {
      * • •
      */
     private static final float FOOT_X = 0.28f;
-    private static final float FOOT_Y = -0.30f;
+    private static final float FOOT_Y = -0.3f;
     private static final float FOOT_RADIUS = 0.055f;
 
     private final Body body;

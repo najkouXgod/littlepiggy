@@ -11,10 +11,8 @@ import com.badlogic.gdx.physics.box2d.*;
 public class GameContactListener implements ContactListener {
 
     private final Player player;
-    private final Farmer farmer;
 
-    public GameContactListener(Player player, Farmer farmer) {
-        this.farmer = farmer;
+    public GameContactListener(Player player) {
         this.player = player;
     }
 
@@ -127,22 +125,37 @@ public class GameContactListener implements ContactListener {
         }
     }
 
-    private void checkFarmerRange(Fixture a, Fixture b, boolean entered) {
+    private void checkFarmerRange(
+            Fixture a,
+            Fixture b,
+            boolean entered) {
 
-        boolean aIsRange = "farmerRange".equals(a.getUserData());
-        boolean bIsRange = "farmerRange".equals(b.getUserData());
+        Farmer farmer = null;
 
-        boolean aIsPlayer = a.getBody().getUserData() instanceof Player;
-        boolean bIsPlayer = b.getBody().getUserData() instanceof Player;
+        // A är Farmer range-sensor, B tillhör Player
+        if (a.isSensor()
+                && a.getUserData() instanceof Farmer
+                && b.getBody().getUserData() instanceof Player) {
 
-        if ((aIsRange && bIsPlayer) ||
-                (bIsRange && aIsPlayer)) {
+            farmer = (Farmer) a.getUserData();
+        }
 
-            if (entered) {
-                farmer.playerEnteredRange();
-            } else {
-                farmer.playerExitedRange();
-            }
+        // B är Farmer range-sensor, A tillhör Player
+        else if (b.isSensor()
+                && b.getUserData() instanceof Farmer
+                && a.getBody().getUserData() instanceof Player) {
+
+            farmer = (Farmer) b.getUserData();
+        }
+
+        if (farmer == null) {
+            return;
+        }
+
+        if (entered) {
+            farmer.playerEnteredRange();
+        } else {
+            farmer.playerExitedRange();
         }
     }
 

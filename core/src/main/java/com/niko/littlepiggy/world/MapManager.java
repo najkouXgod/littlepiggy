@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.enemy.Farmer;
 import com.niko.littlepiggy.item.Apple;
 import com.niko.littlepiggy.assets.GameAssets;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -48,7 +49,7 @@ public class MapManager {
     public void createCollisions(World world) {
 
         for (MapLayer layer : map.getLayers()) {
-            if ("Apples".equals(layer.getName())) {
+            if ("Apples".equals(layer.getName()) || "Farmers".equals(layer.getName())) {
                 continue;
             }
             if (!(layer instanceof TiledMapTileLayer)) {
@@ -137,6 +138,52 @@ public class MapManager {
                     tileX,
                     tileY);
         }
+    }
+
+    public Array<Farmer> createFarmers(
+            World world,
+            GameAssets assets) {
+
+        Array<Farmer> farmers = new Array<>();
+
+        MapLayer layer = map.getLayers().get("Farmers");
+
+        if (!(layer instanceof TiledMapTileLayer)) {
+            return farmers;
+        }
+
+        TiledMapTileLayer farmerLayer = (TiledMapTileLayer) layer;
+
+        float tileWidth = farmerLayer.getTileWidth();
+        float tileHeight = farmerLayer.getTileHeight();
+
+        for (int x = 0; x < farmerLayer.getWidth(); x++) {
+
+            for (int y = 0; y < farmerLayer.getHeight(); y++) {
+
+                TiledMapTileLayer.Cell cell = farmerLayer.getCell(x, y);
+
+                if (cell == null || cell.getTile() == null) {
+                    continue;
+                }
+
+                float worldX = (x * tileWidth + tileWidth / 2f) / PPM;
+
+                float worldY = (y * tileHeight + tileHeight / 2f) / PPM;
+
+                farmers.add(
+                        new Farmer(
+                                world,
+                                assets,
+                                worldX,
+                                worldY));
+
+                // Java-Farmer tar över renderingen.
+                farmerLayer.setCell(x, y, null);
+            }
+        }
+
+        return farmers;
     }
 
     public Array<Apple> createApples(

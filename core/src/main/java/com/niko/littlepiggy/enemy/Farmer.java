@@ -12,9 +12,9 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class Farmer {
 
-    private static final int PELLET_COUNT = 5;
+    private static final int PELLET_COUNT = 4;
     private static final float SPREAD_DEGREES = 8f;
-    private static final float SHOOT_RANGE = 6f;
+    private static final float SHOOT_RANGE = 3.5f;
     private static final float SHOOT_INTERVAL = 2f;
 
     private boolean facingLeft;
@@ -64,7 +64,7 @@ public class Farmer {
         rangeFixtureDef.isSensor = true;
 
         Fixture rangeFixture = body.createFixture(rangeFixtureDef);
-        rangeFixture.setUserData("farmerRange");
+        rangeFixture.setUserData("this");
 
         rangeShape.dispose();
 

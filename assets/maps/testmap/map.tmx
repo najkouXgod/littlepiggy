@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="11" nextobjectid="154">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="154">
  <tileset firstgid="1" source="terrain.tsx"/>
- <layer id="8" name="Ground" width="60" height="25">
+ <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt07sKwCAMhWF7AYfOff9XrYEIIhGHCpLwf3AGNw9JUgIAAAAAAIAlT96RPCWH5iy5m3c00vXd/YnFRrsarWu7p1Y8dO1nVTvJ3V2aen8e+sx4nNEfH99CAOc=
+   eJztzjEKwCAQRUHXWASsvf9Vs0IKCSkDEpiBx8KvthQAAAAAAHY6H3fqWSz9UbxUs2Op3fvY9OOXLm0wAEk=
   </data>
  </layer>
- <layer id="9" name="Decor1" width="60" height="25">
+ <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztz7ENACAMA7A+wEz/vxTmHlBEZUtR1iQCAAAAAPjVej2g2b7Jkokm/crSkx3PLwDN
+   eJzt1MEKgCAMgOF1yISC6FDv/6gVGIwwa4fcwf+D4WAiE5kiAAAAAAAAsOgyMbl2VN8mbd75eu8WRe8Gkl7lo9hmMD7kpX1ehrTOR4QUq6qXZvCt/7Ou/6+/hduas3w4R89gzf4tdgORAS4=
+  </data>
+ </layer>
+ <layer id="14" name="Apples" width="60" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzt0rEJACAUQ8EskP3XdQEbQfALd/D6FEkAAAAAONHXA+Cixqf5RzdNsgDjlABp
   </data>
  </layer>
 </map>
