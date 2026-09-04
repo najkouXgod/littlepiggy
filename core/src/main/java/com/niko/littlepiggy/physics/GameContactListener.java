@@ -70,14 +70,30 @@ public class GameContactListener implements ContactListener {
         if (a.getUserData() instanceof Apple
                 && b.getBody().getUserData() instanceof Player) {
 
-            ((Apple) a.getUserData()).collect();
+            collectApple((Apple) a.getUserData());
         }
 
         if (b.getUserData() instanceof Apple
                 && a.getBody().getUserData() instanceof Player) {
 
-            ((Apple) b.getUserData()).collect();
+            collectApple((Apple) b.getUserData());
         }
+    }
+
+    private void collectApple(Apple apple) {
+
+        if (apple.isCollected()) {
+            return;
+        }
+
+        apple.collect();
+        player.heal(10f);
+
+        System.out.println(
+                "Apple! HP: "
+                        + player.getHealth()
+                        + "/"
+                        + player.getMaxHealth());
     }
 
     private void checkProjectileContact(Fixture a, Fixture b) {

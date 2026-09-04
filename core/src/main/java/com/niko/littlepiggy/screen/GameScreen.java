@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.ui.HealthBarRenderer;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
 import com.niko.littlepiggy.projectile.ProjectileRenderer;
@@ -30,7 +31,9 @@ public class GameScreen extends BaseScreen {
     private final PhysicsManager physics;
     private final MapManager mapManager;
     private final ProjectileManager projectileManager;
+
     private final ProjectileRenderer projectileRenderer;
+    private final HealthBarRenderer healthBarRenderer;
 
     private final Player player;
 
@@ -49,7 +52,10 @@ public class GameScreen extends BaseScreen {
         physics = new PhysicsManager();
         projectileManager = new ProjectileManager(
                 physics.getWorld());
+
         projectileRenderer = new ProjectileRenderer();
+        healthBarRenderer = new HealthBarRenderer();
+
         mapManager = new MapManager(mapName);
         mapManager.createCollisions(physics.getWorld());
 
@@ -107,13 +113,6 @@ public class GameScreen extends BaseScreen {
 
         player.update(delta);
 
-        for (Farmer farmer : farmers) {
-            projectileManager.addAll(
-                    farmer.update(
-                            delta,
-                            player.getPosition()));
-        }
-
         projectileManager.update(delta);
 
         camera.position.set(player.getX(), player.getY(), 0);
@@ -145,6 +144,10 @@ public class GameScreen extends BaseScreen {
 
         batch.end();
 
+        healthBarRenderer.render(
+                player.getHealth(),
+                player.getMaxHealth());
+
         if (debugOverlay != null) {
             debugOverlay.update(delta);
             debugOverlay.render();
@@ -164,6 +167,7 @@ public class GameScreen extends BaseScreen {
         mapManager.dispose();
         physics.dispose();
         projectileRenderer.dispose();
+        healthBarRenderer.dispose();
         if (debugOverlay != null)
             debugOverlay.dispose();
     }

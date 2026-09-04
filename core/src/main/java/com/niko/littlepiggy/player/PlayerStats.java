@@ -10,18 +10,20 @@ public class PlayerStats {
         this.health = maxHealth;
     }
 
-    public void healUp(float amount) {
+    public void heal(float amount) {
         health = Math.min(maxHealth, health + amount);
     }
 
     public void takeDamage(float amount) {
         health = Math.max(0, health - amount);
-
-        System.out.println("Player HP: " + health);
     }
 
     public float getHealth() {
         return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
     }
 
     public boolean isDead() {

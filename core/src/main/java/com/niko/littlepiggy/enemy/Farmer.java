@@ -15,7 +15,7 @@ public class Farmer {
     private static final int PELLET_COUNT = 4;
     private static final float SPREAD_DEGREES = 8f;
     private static final float SHOOT_RANGE = 3.5f;
-    private static final float SHOOT_INTERVAL = 2f;
+    private static final float SHOOT_INTERVAL = 3.5f;
 
     private boolean facingLeft;
     private boolean playerInRange;
@@ -64,7 +64,7 @@ public class Farmer {
         rangeFixtureDef.isSensor = true;
 
         Fixture rangeFixture = body.createFixture(rangeFixtureDef);
-        rangeFixture.setUserData("this");
+        rangeFixture.setUserData(this);
 
         rangeShape.dispose();
 

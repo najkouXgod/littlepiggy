@@ -103,8 +103,16 @@ public class Player {
         playerStats.takeDamage(amount);
     }
 
+    public void heal(float amount) {
+        playerStats.heal(amount);
+    }
+
     public float getHealth() {
         return playerStats.getHealth();
+    }
+
+    public float getMaxHealth() {
+        return playerStats.getMaxHealth();
     }
 
     public boolean isDead() {

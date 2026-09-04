@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="154">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="16" nextobjectid="154">
  <tileset firstgid="1" source="terrain.tsx"/>
+ <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
    eJztzjEKwCAQRUHXWASsvf9Vs0IKCSkDEpiBx8KvthQAAAAAAHY6H3fqWSz9UbxUs2Op3fvY9OOXLm0wAEk=
@@ -14,6 +15,11 @@
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
    eJzt0rEJACAUQ8EskP3XdQEbQfALd/D6FEkAAAAAONHXA+Cixqf5RzdNsgDjlABp
+  </data>
+ </layer>
+ <layer id="15" name="Farmers" width="60" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzt00ENAAAIAzHM4t8CJgjs0Sq4ZFkVAAAAwI7+DuCczSGDL2YYeW8BMA==
   </data>
  </layer>
 </map>
