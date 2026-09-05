@@ -1,12 +1,14 @@
 package com.niko.littlepiggy.screen;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
 
-import com.niko.littlepiggy.world.Goal;
+import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.ui.HealthBarRenderer;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
@@ -20,9 +22,16 @@ import com.niko.littlepiggy.debug.DebugConfig;
 import com.niko.littlepiggy.debug.DebugOverlay;
 import com.niko.littlepiggy.Main;
 import com.niko.littlepiggy.physics.PhysicsManager;
-import com.niko.littlepiggy.world.MapManager;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+
+import com.niko.littlepiggy.world.GameMap;
+import com.niko.littlepiggy.world.MapObjectSpawner;
+import com.niko.littlepiggy.world.TerrainCollisionFactory;
 
 public class GameScreen extends BaseScreen {
+
+    private static final float CAMERA_MARGIN_X = 2f;
+    private static final float CAMERA_MARGIN_Y = 1.5f;
 
     private DebugOverlay debugOverlay;
 
@@ -31,7 +40,7 @@ public class GameScreen extends BaseScreen {
     private final Goal goal;
 
     private final PhysicsManager physics;
-    private final MapManager mapManager;
+    private final GameMap gameMap;
     private final ProjectileManager projectileManager;
 
     private final ProjectileRenderer projectileRenderer;
@@ -58,20 +67,43 @@ public class GameScreen extends BaseScreen {
         projectileRenderer = new ProjectileRenderer();
         healthBarRenderer = new HealthBarRenderer();
 
-        mapManager = new MapManager(mapName);
-        mapManager.createCollisions(physics.getWorld());
-        goal = mapManager.createGoal(
-                physics.getWorld());
+        gameMap = new GameMap(mapName);
+
+        TiledMap tiledMap = gameMap.getTiledMap();
+
+        World world = physics.getWorld();
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
 
         physics.setContactListener(player);
-        farmers = mapManager.createFarmers(
-                physics.getWorld(),
-                game.getAssets());
-        apples = mapManager.createApples(
-                physics.getWorld(),
-                game.getAssets());
+        farmers = MapObjectSpawner.spawnLayer(
+                tiledMap,
+                "Farmers",
+                (tile, x, y) -> new Farmer(
+                        world,
+                        game.getAssets(),
+                        x,
+                        y));
+        apples = MapObjectSpawner.spawnLayer(
+                tiledMap,
+                "Apples",
+                (tile, x, y) -> new Apple(
+                        world,
+                        tile.getTextureRegion(),
+                        x,
+                        y));
+        goal = MapObjectSpawner.spawnSingle(
+                tiledMap,
+                "Goal",
+                (tile, x, y) -> new Goal(
+                        world,
+                        tile.getTextureRegion(),
+                        x,
+                        y));
+
+        TerrainCollisionFactory.buildCollisions(
+                world,
+                tiledMap);
 
         sky = game.getAssets().getTexture(GameAssets.SKY);
 
@@ -88,6 +120,16 @@ public class GameScreen extends BaseScreen {
         ScreenUtils.clear(Color.BLUE);
 
         physics.step(delta);
+
+        for (int i = farmers.size - 1; i >= 0; i--) {
+
+            Farmer farmer = farmers.get(i);
+
+            if (farmer.isDead()) {
+                farmer.destroy();
+                farmers.removeIndex(i);
+            }
+        }
 
         if (player.isDead()) {
             game.setScreen(
@@ -120,12 +162,11 @@ public class GameScreen extends BaseScreen {
             }
         }
 
+        updateCamera();
+
         player.update(delta);
 
         projectileManager.update(delta);
-
-        camera.position.set(player.getX(), player.getY(), 0);
-        camera.update();
 
         batch.setProjectionMatrix(camera.combined);
 
@@ -135,7 +176,7 @@ public class GameScreen extends BaseScreen {
 
         batch.end();
 
-        mapManager.render(camera);
+        gameMap.render(camera);
 
         projectileRenderer.render(camera, projectileManager);
 
@@ -166,6 +207,42 @@ public class GameScreen extends BaseScreen {
         }
     }
 
+    private void updateCamera() {
+
+        float halfWidth = camera.viewportWidth * camera.zoom / 2f;
+
+        float halfHeight = camera.viewportHeight * camera.zoom / 2f;
+
+        float mapWidth = gameMap.getWorldWidth();
+
+        float mapHeight = gameMap.getWorldHeight();
+
+        float minX = halfWidth - CAMERA_MARGIN_X;
+
+        float maxX = mapWidth - halfWidth + CAMERA_MARGIN_X;
+
+        float minY = halfHeight - CAMERA_MARGIN_Y;
+
+        float maxY = mapHeight - halfHeight + CAMERA_MARGIN_Y;
+
+        float cameraX = MathUtils.clamp(
+                player.getX(),
+                minX,
+                maxX);
+
+        float cameraY = MathUtils.clamp(
+                player.getY(),
+                minY,
+                maxY);
+
+        camera.position.set(
+                cameraX,
+                cameraY,
+                0f);
+
+        camera.update();
+    }
+
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
@@ -176,7 +253,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public void dispose() {
         batch.dispose();
-        mapManager.dispose();
+        gameMap.dispose();
         physics.dispose();
         projectileRenderer.dispose();
         healthBarRenderer.dispose();

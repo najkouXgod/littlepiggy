@@ -59,6 +59,23 @@ public class GameAssets {
             int frameWidth,
             int frameHeight) {
 
+        return getRowFrames(
+                path,
+                row,
+                0,
+                frameCount,
+                frameWidth,
+                frameHeight);
+    }
+
+    public TextureRegion[] getRowFrames(
+            String path,
+            int row,
+            int startColumn,
+            int frameCount,
+            int frameWidth,
+            int frameHeight) {
+
         Texture texture = getTexture(path);
 
         TextureRegion[][] sheet = TextureRegion.split(
@@ -69,7 +86,7 @@ public class GameAssets {
         TextureRegion[] frames = new TextureRegion[frameCount];
 
         for (int i = 0; i < frameCount; i++) {
-            frames[i] = sheet[row][i];
+            frames[i] = sheet[row][startColumn + i];
         }
 
         return frames;

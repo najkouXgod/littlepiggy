@@ -32,45 +32,33 @@ public final class TerrainCollisionFactory {
                 continue;
             }
 
-            TiledMapTileLayer tileLayer =
-                    (TiledMapTileLayer) layer;
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;
 
-            float tileWidth =
-                    tileLayer.getTileWidth();
+            float tileWidth = tileLayer.getTileWidth();
 
-            float tileHeight =
-                    tileLayer.getTileHeight();
+            float tileHeight = tileLayer.getTileHeight();
 
-            for (int x = 0;
-                    x < tileLayer.getWidth();
-                    x++) {
+            for (int x = 0; x < tileLayer.getWidth(); x++) {
 
-                for (int y = 0;
-                        y < tileLayer.getHeight();
-                        y++) {
+                for (int y = 0; y < tileLayer.getHeight(); y++) {
 
-                    TiledMapTileLayer.Cell cell =
-                            tileLayer.getCell(x, y);
+                    TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
 
                     if (cell == null) {
                         continue;
                     }
 
-                    TiledMapTile tile =
-                            cell.getTile();
+                    TiledMapTile tile = cell.getTile();
 
                     if (tile == null) {
                         continue;
                     }
 
-                    float tilePixelX =
-                            x * tileWidth;
+                    float tilePixelX = x * tileWidth;
 
-                    float tilePixelY =
-                            y * tileHeight;
+                    float tilePixelY = y * tileHeight;
 
-                    for (MapObject object
-                            : tile.getObjects()) {
+                    for (MapObject object : tile.getObjects()) {
 
                         createCollision(
                                 world,
@@ -113,13 +101,11 @@ public final class TerrainCollisionFactory {
             float tileX,
             float tileY) {
 
-        Rectangle rect =
-                object.getRectangle();
+        Rectangle rect = object.getRectangle();
 
         BodyDef bodyDef = new BodyDef();
 
-        bodyDef.type =
-                BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.StaticBody;
 
         bodyDef.position.set(
                 TileCoordinates.pixelToWorld(
@@ -132,11 +118,9 @@ public final class TerrainCollisionFactory {
                                 + rect.y
                                 + rect.height / 2f));
 
-        Body body =
-                world.createBody(bodyDef);
+        Body body = world.createBody(bodyDef);
 
-        PolygonShape shape =
-                new PolygonShape();
+        PolygonShape shape = new PolygonShape();
 
         shape.setAsBox(
                 TileCoordinates.pixelToWorld(
@@ -145,8 +129,7 @@ public final class TerrainCollisionFactory {
                 TileCoordinates.pixelToWorld(
                         rect.height / 2f));
 
-        Fixture fixture =
-                body.createFixture(shape, 0f);
+        Fixture fixture = body.createFixture(shape, 0f);
 
         fixture.setUserData("ground");
 
@@ -159,14 +142,11 @@ public final class TerrainCollisionFactory {
             float tileX,
             float tileY) {
 
-        Polygon polygon =
-                object.getPolygon();
+        Polygon polygon = object.getPolygon();
 
-        float[] vertices =
-                polygon.getVertices();
+        float[] vertices = polygon.getVertices();
 
-        int vertexCount =
-                vertices.length / 2;
+        int vertexCount = vertices.length / 2;
 
         /*
          * Triangle = 3.
@@ -184,29 +164,22 @@ public final class TerrainCollisionFactory {
             return;
         }
 
-        float[] box2dVertices =
-                new float[vertices.length];
+        float[] box2dVertices = new float[vertices.length];
 
-        for (int i = 0;
-                i < vertices.length;
-                i += 2) {
+        for (int i = 0; i < vertices.length; i += 2) {
 
-            box2dVertices[i] =
-                    TileCoordinates.pixelToWorld(
-                            polygon.getX()
-                                    + vertices[i]);
+            box2dVertices[i] = TileCoordinates.pixelToWorld(
+                    polygon.getX()
+                            + vertices[i]);
 
-            box2dVertices[i + 1] =
-                    TileCoordinates.pixelToWorld(
-                            polygon.getY()
-                                    + vertices[i + 1]);
+            box2dVertices[i + 1] = TileCoordinates.pixelToWorld(
+                    polygon.getY()
+                            + vertices[i + 1]);
         }
 
-        BodyDef bodyDef =
-                new BodyDef();
+        BodyDef bodyDef = new BodyDef();
 
-        bodyDef.type =
-                BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.StaticBody;
 
         /*
          * Polygon-punkterna är lokala till tilen.
@@ -215,16 +188,13 @@ public final class TerrainCollisionFactory {
                 TileCoordinates.pixelToWorld(tileX),
                 TileCoordinates.pixelToWorld(tileY));
 
-        Body body =
-                world.createBody(bodyDef);
+        Body body = world.createBody(bodyDef);
 
-        PolygonShape shape =
-                new PolygonShape();
+        PolygonShape shape = new PolygonShape();
 
         shape.set(box2dVertices);
 
-        Fixture fixture =
-                body.createFixture(shape, 0f);
+        Fixture fixture = body.createFixture(shape, 0f);
 
         fixture.setUserData("ground");
 

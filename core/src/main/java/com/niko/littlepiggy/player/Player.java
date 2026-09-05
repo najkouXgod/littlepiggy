@@ -1,13 +1,15 @@
 package com.niko.littlepiggy.player;
 
+import com.niko.littlepiggy.combat.Damageable;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 
 import com.niko.littlepiggy.assets.GameAssets;
 
-public class Player {
+public class Player implements Damageable {
 
+    private final PlayerCombat combat;
     private final PlayerStats playerStats;
     private final PlayerPhysics physics;
     private final PlayerController controller;
@@ -25,6 +27,8 @@ public class Player {
                 world,
                 startX,
                 startY);
+
+        combat = new PlayerCombat(physics);
 
         /*
          * Viktigt:
@@ -44,19 +48,43 @@ public class Player {
 
     public void update(float delta) {
 
-        controller.update(delta);
+        controller.update(
+                delta,
+                combat.blocksMovement());
+
+        combat.update(
+                delta,
+                controller.isDashChargeHeld(),
+                controller.isFacingLeft());
 
         animator.update(
                 delta,
                 physics.getX(),
                 physics.getY(),
                 controller.isMoving(),
-                controller.isCharging(),
+                combat.isCharging(),
+                combat.isDashSequence(),
                 controller.isFacingLeft());
     }
 
     public void render(SpriteBatch batch) {
         animator.render(batch);
+    }
+
+    public String getCombatState() {
+        return combat.getStateName();
+    }
+
+    public boolean isDashing() {
+        return combat.isDashing();
+    }
+
+    public float getDashCharge() {
+        return combat.getChargePercent();
+    }
+
+    public float getDashChargeTime() {
+        return combat.getChargeTime();
     }
 
     public float getX() {
@@ -88,17 +116,15 @@ public class Player {
     }
 
     public boolean isCharging() {
-        return controller.isCharging();
+        return combat.isCharging();
     }
 
-    public float getJumpCharge() {
-        return controller.getJumpCharge();
-    }
-
+    @Override
     public void applyKnockback(float x, float y) {
         physics.applyImpulse(x, y);
     }
 
+    @Override
     public void takeDamage(float amount) {
         playerStats.takeDamage(amount);
     }
@@ -115,6 +141,7 @@ public class Player {
         return playerStats.getMaxHealth();
     }
 
+    @Override
     public boolean isDead() {
         return playerStats.isDead();
     }

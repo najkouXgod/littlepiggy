@@ -2,145 +2,86 @@ package com.niko.littlepiggy.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector2;
+
 import com.niko.littlepiggy.debug.DebugConfig;
 
 public class PlayerController {
 
     private final PlayerPhysics physics;
 
-    private boolean spaceWasPressed;
     private boolean moving;
     private boolean facingLeft;
-    private boolean charging;
 
-    private float jumpCharge;
-    private float spacePressedTime;
+    private boolean jumpWasPressed;
+    private boolean dashChargeHeld;
 
     public PlayerController(PlayerPhysics physics) {
         this.physics = physics;
     }
 
-    public void update(float delta) {
+    public void update(
+            float delta,
+            boolean movementBlocked) {
 
         moving = false;
 
-        handleMovement();
-        handleJump(delta);
+        dashChargeHeld = Gdx.input.isKeyPressed(
+                Input.Keys.UP);
+
+        handleMovement(movementBlocked);
+        handleJump(movementBlocked);
     }
 
-    private void handleMovement() {
+    private void handleMovement(
+            boolean movementBlocked) {
 
-        if (charging) {
+        if (movementBlocked) {
             return;
         }
 
         float velocityX = 0f;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(
+                Input.Keys.RIGHT)) {
+
             velocityX = DebugConfig.SPEED;
             facingLeft = false;
             moving = true;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(
+                Input.Keys.LEFT)) {
+
             velocityX = -DebugConfig.SPEED;
             facingLeft = true;
             moving = true;
         }
 
-        physics.setHorizontalVelocity(velocityX);
+        physics.setHorizontalVelocity(
+                velocityX);
     }
 
-    private void handleJump(float delta) {
+    private void handleJump(
+            boolean movementBlocked) {
 
-        boolean jumpPressed = Gdx.input.isKeyPressed(Input.Keys.UP);
-
-        /*
-         * Är vi i luften ska vi inte kunna börja
-         * ladda ett nytt hopp.
-         */
-        if (!physics.isGrounded()) {
-
-            if (!jumpPressed) {
-                resetCharge();
-            }
-
-            spaceWasPressed = jumpPressed;
-            return;
-        }
+        boolean jumpPressed = Gdx.input.isKeyPressed(
+                Input.Keys.SPACE);
 
         /*
-         * Knappen hålls nere.
+         * Hoppa bara när SPACE precis tryckts,
+         * inte varje frame medan den hålls.
          */
-        if (jumpPressed) {
+        if (jumpPressed
+                && !jumpWasPressed
+                && physics.isGrounded()
+                && !movementBlocked) {
 
-            spacePressedTime += delta;
-
-            if (spacePressedTime >= DebugConfig.TAP_THRESHOLD) {
-
-                Vector2 velocity = physics.getVelocity();
-
-                float newVelocityX = velocity.x *
-                        (1f - delta * DebugConfig.CHARGE_FRICTION);
-
-                if (Math.abs(newVelocityX) < 0.1f) {
-                    newVelocityX = 0f;
-                }
-
-                physics.setHorizontalVelocity(newVelocityX);
-
-                jumpCharge = Math.min(
-                        jumpCharge
-                                + delta / DebugConfig.CHARGE_TIME,
-                        1f);
-
-                charging = true;
-            }
+            physics.jump(
+                    0f,
+                    DebugConfig.JUMP_MINPOWER);
         }
 
-        /*
-         * Knappen släpptes.
-         */
-        if (!jumpPressed && spaceWasPressed) {
-
-            if (spacePressedTime < DebugConfig.TAP_THRESHOLD) {
-
-                // Kort tryck
-                physics.jump(
-                        0,
-                        DebugConfig.JUMP_MINPOWER);
-
-            } else if (charging) {
-
-                // Laddat hopp
-                float curvedCharge = (float) Math.pow(
-                        jumpCharge,
-                        1f / DebugConfig.CHARGE_CURVE);
-
-                float jumpStrength = DebugConfig.JUMP_MINPOWER
-                        + (DebugConfig.JUMP_MAXPOWER
-                                - DebugConfig.JUMP_MINPOWER) * curvedCharge;
-
-                float horizontalBoost = (facingLeft ? -1f : 1f)
-                        * 2.6f
-                        * curvedCharge;
-
-                physics.jump(
-                        horizontalBoost,
-                        jumpStrength);
-            }
-
-            resetCharge();
-        }
-
-        spaceWasPressed = jumpPressed;
-    }
-
-    private void resetCharge() {
-        spacePressedTime = 0f;
-        jumpCharge = 0f;
-        charging = false;
+        jumpWasPressed = jumpPressed;
     }
 
     public boolean isMoving() {
@@ -151,11 +92,7 @@ public class PlayerController {
         return facingLeft;
     }
 
-    public boolean isCharging() {
-        return charging;
-    }
-
-    public float getJumpCharge() {
-        return jumpCharge;
+    public boolean isDashChargeHeld() {
+        return dashChargeHeld;
     }
 }

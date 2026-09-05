@@ -163,6 +163,41 @@ public class PlayerPhysics {
         shape.dispose();
     }
 
+    public Fixture createAttackHitbox(
+            float width,
+            float height,
+            float offsetX,
+            Object owner) {
+
+        PolygonShape shape = new PolygonShape();
+
+        shape.setAsBox(
+                width / 2f,
+                height / 2f,
+                new Vector2(offsetX, 0f),
+                0f);
+
+        FixtureDef fixtureDef = new FixtureDef();
+
+        fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+
+        Fixture fixture = body.createFixture(fixtureDef);
+
+        fixture.setUserData(owner);
+
+        shape.dispose();
+
+        return fixture;
+    }
+
+    public void destroyFixture(Fixture fixture) {
+
+        if (fixture != null) {
+            body.destroyFixture(fixture);
+        }
+    }
+
     public void setOwner(Object owner) {
         body.setUserData(owner);
     }

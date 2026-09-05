@@ -28,6 +28,30 @@ public class GameMap {
         return map;
     }
 
+    public float getWorldWidth() {
+
+        int width = map.getProperties()
+                .get("width", Integer.class);
+
+        int tileWidth = map.getProperties()
+                .get("tilewidth", Integer.class);
+
+        return TileCoordinates.pixelToWorld(
+                width * tileWidth);
+    }
+
+    public float getWorldHeight() {
+
+        int height = map.getProperties()
+                .get("height", Integer.class);
+
+        int tileHeight = map.getProperties()
+                .get("tileheight", Integer.class);
+
+        return TileCoordinates.pixelToWorld(
+                height * tileHeight);
+    }
+
     public void render(
             OrthographicCamera camera) {
 

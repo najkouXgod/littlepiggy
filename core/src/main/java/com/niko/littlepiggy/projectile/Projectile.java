@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.*;
 public abstract class Projectile {
 
     protected final Body body;
+    private final Object owner;
 
     protected final float damage;
     protected final float knockback;
@@ -15,6 +16,7 @@ public abstract class Projectile {
 
     protected Projectile(
             World world,
+            Object owner,
             float x,
             float y,
             Vector2 direction,
@@ -22,6 +24,8 @@ public abstract class Projectile {
             float damage,
             float radius,
             float knockback) {
+
+        this.owner = owner;
 
         this.damage = damage;
         this.knockback = knockback;
@@ -73,6 +77,10 @@ public abstract class Projectile {
 
     public Body getBody() {
         return body;
+    }
+
+    public Object getOwner() {
+        return owner;
     }
 
     public Vector2 getKnockbackImpulse() {

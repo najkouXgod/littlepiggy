@@ -14,11 +14,12 @@ public class Pellet extends Projectile {
 
     public Pellet(
             World world,
+            Object owner,
             float x,
             float y,
             float speedMultiplier,
             Vector2 direction) {
-        super(world, x, y, direction, SPEED * speedMultiplier, DAMAGE, RADIUS, KNOCKBACK);
+        super(world, owner, x, y, direction, SPEED * speedMultiplier, DAMAGE, RADIUS, KNOCKBACK);
     }
 
     @Override

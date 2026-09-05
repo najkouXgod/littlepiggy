@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.physics;
 
+import com.niko.littlepiggy.player.PlayerCombat;
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
@@ -28,6 +29,7 @@ public class GameContactListener implements ContactListener {
         String aName = a.getUserData() != null ? a.getUserData().toString() : "NULL";
         String bName = b.getUserData() != null ? b.getUserData().toString() : "NULL";
 
+        checkAttackContact(a, b);
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
         checkAppleContact(a, b);
@@ -44,6 +46,50 @@ public class GameContactListener implements ContactListener {
 
         checkGroundContact(contact, a, b, false);
         checkFarmerRange(a, b, false);
+    }
+
+    private void checkAttackContact(
+            Fixture a,
+            Fixture b) {
+
+        if (a.getUserData() instanceof PlayerCombat) {
+            PlayerCombat combat = (PlayerCombat) a.getUserData();
+            applyAttackHit(
+                    combat,
+                    b);
+        }
+
+        if (b.getUserData() instanceof PlayerCombat) {
+            PlayerCombat combat = (PlayerCombat) b.getUserData();
+            applyAttackHit(
+                    combat,
+                    a);
+        }
+    }
+
+    private void applyAttackHit(
+            PlayerCombat combat,
+            Fixture targetFixture) {
+
+        /*
+         * Jätteviktigt:
+         * Farmer har en stor range-sensor.
+         *
+         * Vi vill träffa Farmers kropp,
+         * inte range-sensorn.
+         */
+        if (targetFixture.isSensor()) {
+            return;
+        }
+
+        Object target = targetFixture
+                .getBody()
+                .getUserData();
+
+        if (target instanceof Damageable) {
+            Damageable damageable = (Damageable) target;
+            combat.hit(damageable);
+        }
     }
 
     private void checkGroundContact(Contact contact, Fixture a, Fixture b, boolean begin) {
@@ -157,6 +203,10 @@ public class GameContactListener implements ContactListener {
 
         // Något som kan ta damage
         Object target = other.getBody().getUserData();
+
+        if (target == projectile.getOwner()) {
+            return;
+        }
 
         if (target instanceof Damageable) {
             Damageable damageable = (Damageable) target;

@@ -1,174 +1,408 @@
 package com.niko.littlepiggy.debug;
 
+import java.util.Locale;
+
 import com.niko.littlepiggy.player.Player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 
-/**
- * Tryck F1 för att visa/dölja.
- * Navigera med W/S, ändra värde med A/D.
- * Håll SHIFT för snabbare ändring (x5).
- */
 public class DebugOverlay {
 
-    private static class Param {
-        String label;
-        float value, min, max, step;
+    private static final int MAX_LOG_LINES = 8;
 
-        Param(String label, float value, float min, float max, float step) {
-            this.label = label;
-            this.value = value;
-            this.min = min;
-            this.max = max;
-            this.step = step;
-        }
-
-        void increase(boolean fast) {
-            value = Math.min(max, value + step * (fast ? 5 : 1));
-            apply();
-        }
-
-        void decrease(boolean fast) {
-            value = Math.max(min, value - step * (fast ? 5 : 1));
-            apply();
-        }
-
-        void apply() {
-            switch (label) {
-                case "Speed":
-                    DebugConfig.SPEED = value;
-                    break;
-                case "Jump min":
-                    DebugConfig.JUMP_MINPOWER = value;
-                    break;
-                case "Jump max":
-                    DebugConfig.JUMP_MAXPOWER = value;
-                    break;
-                case "Charge time":
-                    DebugConfig.CHARGE_TIME = value;
-                    break;
-                case "Charge curve":
-                    DebugConfig.CHARGE_CURVE = value;
-                    break;
-                case "Charge friction":
-                    DebugConfig.CHARGE_FRICTION = value;
-                    break;
-                case "Tap threshold":
-                    DebugConfig.TAP_THRESHOLD = value;
-                    break;
-            }
-        }
-    }
-
-    private final Param[] params = {
-            new Param("Speed", DebugConfig.SPEED, 0.5f, 12f, 0.5f),
-            new Param("Jump min", DebugConfig.JUMP_MINPOWER, 0.5f, 5f, 0.25f),
-            new Param("Jump max", DebugConfig.JUMP_MAXPOWER, 1f, 8f, 0.25f),
-            new Param("Charge time", DebugConfig.CHARGE_TIME, 0.1f, 2f, 0.1f),
-            new Param("Charge curve", DebugConfig.CHARGE_CURVE, 0.5f, 5f, 0.25f),
-            new Param("Charge friction", DebugConfig.CHARGE_FRICTION, 1f, 20f, 1f),
-            new Param("Tap threshold", DebugConfig.TAP_THRESHOLD, 0.01f, 0.2f, 0.01f),
-    };
-
-    private int selected = 0;
-    private boolean visible = false;
-
-    private final BitmapFont font;
-    private final SpriteBatch hudBatch;
-    private final OrthographicCamera hudCam;
     private final Player player;
 
-    private final String[] log = new String[8];
-    private int logHead = 0;
+    private final BitmapFont font;
+    private final SpriteBatch batch;
+    private final ShapeRenderer shapes;
+    private final OrthographicCamera camera;
+
+    private final String[] log = new String[MAX_LOG_LINES];
+
+    private int logHead;
+    private int logCount;
+
+    private boolean visible;
 
     public DebugOverlay(Player player) {
+
         this.player = player;
+
         font = new BitmapFont();
-        hudBatch = new SpriteBatch();
-        hudCam = new OrthographicCamera();
-        hudCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch = new SpriteBatch();
+        shapes = new ShapeRenderer();
+
+        camera = new OrthographicCamera();
+
+        resize(
+                Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight());
     }
 
     public void update(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5))
-            visible = !visible;
-        if (!visible)
-            return;
-        boolean shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT);
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-            selected = (selected - 1 + params.length) % params.length;
-        if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-            selected = (selected + 1) % params.length;
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-            params[selected].increase(shift);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-            params[selected].decrease(shift);
+        if (Gdx.input.isKeyJustPressed(
+                Input.Keys.F1)) {
+
+            visible = !visible;
+        }
     }
 
     public void render() {
-        if (!visible)
+
+        if (!visible) {
             return;
-
-        hudBatch.setProjectionMatrix(hudCam.combined);
-        hudBatch.begin();
-
-        float x = 14f;
-        float y = Gdx.graphics.getHeight() - 12f;
-        float lh = 16f;
-
-        font.setColor(Color.YELLOW);
-        font.draw(hudBatch, "F1:dölj  W/S:välj  A/D:ändra  SHIFT:x5", x, y);
-        y -= lh * 1.5f;
-
-        for (int i = 0; i < params.length; i++) {
-            Param p = params[i];
-            font.setColor(i == selected ? Color.CYAN : Color.WHITE);
-            font.draw(hudBatch,
-                    String.format("%s%-18s %.2f", i == selected ? "> " : "  ", p.label, p.value),
-                    x, y);
-            y -= lh;
         }
 
-        y -= lh * 0.5f;
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelX = 12f;
+        float panelY = screenHeight - 12f;
+
+        float panelWidth = 340f;
+        float panelHeight = 285f;
+
+        drawBackground(
+                panelX,
+                panelY - panelHeight,
+                panelWidth,
+                panelHeight);
+
+        batch.setProjectionMatrix(
+                camera.combined);
+
+        batch.begin();
+
+        float x = panelX + 12f;
+        float y = panelY - 12f;
+
+        float lineHeight = 18f;
+
+        /*
+         * Header
+         */
+        font.setColor(Color.YELLOW);
+
+        font.draw(
+                batch,
+                "DEBUG  [F1 hide]",
+                x,
+                y);
+
+        y -= lineHeight * 1.5f;
+
+        /*
+         * Performance
+         */
         font.setColor(Color.LIGHT_GRAY);
-        font.draw(hudBatch, String.format(
-                "pos(%.1f, %.1f)  vel(%.1f, %.1f)  gnd:%b  chg:%b  pwr:%.2f",
-                player.getX(), player.getY(),
-                player.getVelocity().x, player.getVelocity().y,
-                player.isGrounded(), player.isCharging(), player.getJumpCharge()), x, y);
-        y -= lh * 1.5f;
+
+        drawLine(
+                "FPS",
+                Integer.toString(
+                        Gdx.graphics.getFramesPerSecond()),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        /*
+         * Player physics
+         */
+        Vector2 position = player.getPosition();
+
+        Vector2 velocity = player.getVelocity();
+
+        drawLine(
+                "Position",
+                format(
+                        "%.2f, %.2f",
+                        position.x,
+                        position.y),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        drawLine(
+                "Velocity",
+                format(
+                        "%.2f, %.2f",
+                        velocity.x,
+                        velocity.y),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        drawLine(
+                "Grounded",
+                Boolean.toString(
+                        player.isGrounded()),
+                x,
+                y);
+
+        y -= lineHeight * 1.3f;
+
+        /*
+         * Health
+         */
+        font.setColor(Color.WHITE);
+
+        drawLine(
+                "Health",
+                format(
+                        "%.0f / %.0f",
+                        player.getHealth(),
+                        player.getMaxHealth()),
+                x,
+                y);
+
+        y -= lineHeight * 1.3f;
+
+        /*
+         * Combat
+         */
+        font.setColor(Color.CYAN);
+
+        drawLine(
+                "Combat",
+                player.getCombatState(),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        drawLine(
+                "Charging",
+                Boolean.toString(
+                        player.isCharging()),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        drawLine(
+                "Dashing",
+                Boolean.toString(
+                        player.isDashing()),
+                x,
+                y);
+
+        y -= lineHeight;
+
+        drawLine(
+                "Dash charge",
+                format(
+                        "%.0f%%  (%.2fs)",
+                        player.getDashCharge() * 100f,
+                        player.getDashChargeTime()),
+                x,
+                y);
+
+        batch.end();
+
+        /*
+         * Separat charge-bar.
+         */
+        drawChargeBar(
+                panelX + 12f,
+                panelY - 220f,
+                panelWidth - 24f,
+                8f,
+                player.getDashCharge());
+
+        /*
+         * Event log.
+         */
+        drawLog(
+                panelX + 12f,
+                panelY - 245f);
+    }
+
+    private void drawBackground(
+            float x,
+            float y,
+            float width,
+            float height) {
+
+        shapes.setProjectionMatrix(
+                camera.combined);
+
+        Gdx.gl.glEnable(
+                GL20.GL_BLEND);
+
+        Gdx.gl.glBlendFunc(
+                GL20.GL_SRC_ALPHA,
+                GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapes.begin(
+                ShapeRenderer.ShapeType.Filled);
+
+        shapes.setColor(
+                0f,
+                0f,
+                0f,
+                0.75f);
+
+        shapes.rect(
+                x,
+                y,
+                width,
+                height);
+
+        shapes.end();
+
+        Gdx.gl.glDisable(
+                GL20.GL_BLEND);
+    }
+
+    private void drawChargeBar(
+            float x,
+            float y,
+            float width,
+            float height,
+            float charge) {
+
+        charge = Math.max(
+                0f,
+                Math.min(1f, charge));
+
+        shapes.setProjectionMatrix(
+                camera.combined);
+
+        shapes.begin(
+                ShapeRenderer.ShapeType.Filled);
+
+        /*
+         * Bakgrund
+         */
+        shapes.setColor(
+                Color.DARK_GRAY);
+
+        shapes.rect(
+                x,
+                y,
+                width,
+                height);
+
+        /*
+         * Charge
+         */
+        shapes.setColor(
+                Color.ORANGE);
+
+        shapes.rect(
+                x,
+                y,
+                width * charge,
+                height);
+
+        shapes.end();
+    }
+
+    private void drawLog(
+            float x,
+            float y) {
+
+        batch.setProjectionMatrix(
+                camera.combined);
+
+        batch.begin();
 
         font.setColor(Color.GRAY);
-        for (int i = 0; i < log.length; i++) {
-            int idx = (logHead + i) % log.length;
-            if (log[idx] != null) {
-                font.draw(hudBatch, log[idx], x, y);
-                y -= lh;
-            }
+
+        font.draw(
+                batch,
+                "Events:",
+                x,
+                y);
+
+        y -= 17f;
+
+        /*
+         * Visa senaste meddelandet först.
+         */
+        for (int i = 0; i < logCount; i++) {
+
+            int index = (logHead - 1 - i
+                    + MAX_LOG_LINES)
+                    % MAX_LOG_LINES;
+
+            font.draw(
+                    batch,
+                    log[index],
+                    x,
+                    y);
+
+            y -= 15f;
         }
 
-        hudBatch.end();
+        batch.end();
     }
 
-    /** Anropa utifrån vid viktiga händelser, t.ex. landning eller hopp. */
-    public void log(String msg) {
-        log[logHead] = msg;
-        logHead = (logHead + 1) % log.length;
-        Gdx.app.log("DBG", msg);
+    private void drawLine(
+            String label,
+            String value,
+            float x,
+            float y) {
+
+        font.draw(
+                batch,
+                label + ": " + value,
+                x,
+                y);
     }
 
-    public void resize(int w, int h) {
-        hudCam.setToOrtho(false, w, h);
+    private String format(
+            String format,
+            Object... args) {
+
+        return String.format(
+                Locale.US,
+                format,
+                args);
+    }
+
+    public void log(String message) {
+
+        log[logHead] = message;
+
+        logHead = (logHead + 1)
+                % MAX_LOG_LINES;
+
+        logCount = Math.min(
+                logCount + 1,
+                MAX_LOG_LINES);
+
+        Gdx.app.log(
+                "DEBUG",
+                message);
+    }
+
+    public void resize(
+            int width,
+            int height) {
+
+        camera.setToOrtho(
+                false,
+                width,
+                height);
+
+        camera.update();
     }
 
     public void dispose() {
+
         font.dispose();
-        hudBatch.dispose();
+        batch.dispose();
+        shapes.dispose();
     }
 }

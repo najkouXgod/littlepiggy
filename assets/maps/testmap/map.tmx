@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="154">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="18" nextobjectid="170">
  <tileset firstgid="1" source="terrain.tsx"/>
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="11" name="Ground" width="60" height="25">
@@ -27,4 +27,25 @@
    eJztzqENACAQBMG3aDT0XyYGi71PyEwDu1UAAADwv9E9EDa7B64d6qxgCwBeDkXVAHY=
   </data>
  </layer>
+ <objectgroup id="17" name="collisions">
+  <object id="154" x="6" y="446.667" width="28" height="59.3333"/>
+  <object id="158" x="4.125" y="591.125" width="146.125" height="16.5"/>
+  <object id="159" x="148.563" y="591.156" width="511.438" height="14.8438"/>
+  <object id="160" x="659.783" y="591.217" width="170.884" height="14.7826"/>
+  <object id="161" x="896.5" y="591.25" width="160" height="15.75"/>
+  <object id="162" x="1056.45" y="591.545">
+   <polygon points="0,0 68.0455,69.0795 0.545455,69.7045"/>
+  </object>
+  <object id="163" x="1118.5" y="655" width="64.75" height="14.5"/>
+  <object id="164" x="1092.13" y="751.25" width="91.75" height="16.25"/>
+  <object id="165" x="636.364" y="782.727" width="163.455" height="17.6364"/>
+  <object id="166" x="511.818" y="719.273" width="64.5455" height="15.2727"/>
+  <object id="167" x="576.25" y="719.375">
+   <polygon points="0,0 68.125,68.75 -0.75,66.5"/>
+  </object>
+  <object id="168" x="512.5" y="719.625">
+   <polygon points="0,0 -38.375,38.125 2,39.875"/>
+  </object>
+  <object id="169" x="383.273" y="751.455" width="100.545" height="16"/>
+ </objectgroup>
 </map>
