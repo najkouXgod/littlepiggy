@@ -4,48 +4,27 @@
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1DEKgDAQBMAzsRBS5/9fTYQUIpZGCczAcrDVVRsBAAAAsLbtowDMctzuqcT6G/S0paknX7KPvv7045saEssAYw==
+   eJztlkEKgDAMBKN4KOhV//9ULVgoKRLqoZrsDiw9FTolhBUhxCbdmVSiUTyjQ89YoHhqUL3z7t2+fsRgDqEzAtm57hjzlUXa7qGD+E90jg+dMaj3HhqIHS6i85OTN9dV7L6hnZI6vZBd98473hwLb1xHYs1cb/7sisgJackCRQ==
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1MEKgCAMgOF1yISC6FDv/6gVGIwwa4fcwf+D4WAiE5kiAAAAAAAAsOgyMbl2VN8mbd75eu8WRe8Gkl7lo9hmMD7kpX1ehrTOR4QUq6qXZvCt/7Ou/6+/hduas3w4R89gzf4tdgORAS4=
+   eJzt17sKACAIRuGWbIze/2W7UJvUEGTU+eAnIQcXB53DjtBfbzrFOalESqL1IAAAAACe88tdNdS7SqyHANCIUrOf54R1y1PS5E+UaD1ajTtk4csAoQ==
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0rEJACAUQ8EskP3XdQEbQfALd/D6FEkAAAAAONHXA+Cixqf5RzdNsgDjlABp
+   eJzt1UEKwCAMRcF/Ae9/3W4lVMFNq+0MBCG7BwETAAB21LrJ4K27k9XeZN6efKN7leZ/0Ay8qf7Hox086e7+3CQ7ugBAagFT
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt00ENAAAIAzHM4t8CJgjs0Sq4ZFkVAAAAwI7+DuCczSGDL2YYeW8BMA==
+   eJzt1jERADAIA0DM4t8CCjgWBnr9XxIBGRIBAH/IpsNLckgAgE0+BtfYJNcVvaMDKQ==
   </data>
  </layer>
  <layer id="16" name="Goal" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzqENACAQBMG3aDT0XyYGi71PyEwDu1UAAADwv9E9EDa7B64d6qxgCwBeDkXVAHY=
+   eJztzqkRADAMwLDQ4uJ0/zE7RR4gDeBzRJ1T2N7oTg80y+kBAAAA1nvTAwDQ6APEDwBY
   </data>
  </layer>
- <objectgroup id="17" name="collisions">
-  <object id="154" x="6" y="446.667" width="28" height="59.3333"/>
-  <object id="158" x="4.125" y="591.125" width="146.125" height="16.5"/>
-  <object id="159" x="148.563" y="591.156" width="511.438" height="14.8438"/>
-  <object id="160" x="659.783" y="591.217" width="170.884" height="14.7826"/>
-  <object id="161" x="896.5" y="591.25" width="160" height="15.75"/>
-  <object id="162" x="1056.45" y="591.545">
-   <polygon points="0,0 68.0455,69.0795 0.545455,69.7045"/>
-  </object>
-  <object id="163" x="1118.5" y="655" width="64.75" height="14.5"/>
-  <object id="164" x="1092.13" y="751.25" width="91.75" height="16.25"/>
-  <object id="165" x="636.364" y="782.727" width="163.455" height="17.6364"/>
-  <object id="166" x="511.818" y="719.273" width="64.5455" height="15.2727"/>
-  <object id="167" x="576.25" y="719.375">
-   <polygon points="0,0 68.125,68.75 -0.75,66.5"/>
-  </object>
-  <object id="168" x="512.5" y="719.625">
-   <polygon points="0,0 -38.375,38.125 2,39.875"/>
-  </object>
-  <object id="169" x="383.273" y="751.455" width="100.545" height="16"/>
- </objectgroup>
 </map>

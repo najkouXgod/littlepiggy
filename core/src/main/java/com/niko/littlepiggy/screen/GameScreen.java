@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.screen.WinScreen;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.ui.HealthBarRenderer;
 import com.niko.littlepiggy.projectile.Pellet;
@@ -30,6 +31,7 @@ import com.niko.littlepiggy.world.TerrainCollisionFactory;
 
 public class GameScreen extends BaseScreen {
 
+    private static final float DEATH_MARGIN = 3f;
     private static final float CAMERA_MARGIN_X = 2f;
     private static final float CAMERA_MARGIN_Y = 1.5f;
 
@@ -73,7 +75,7 @@ public class GameScreen extends BaseScreen {
 
         World world = physics.getWorld();
 
-        player = new Player(physics.getWorld(), 9, 11, game.getAssets());
+        player = new Player(physics.getWorld(), 3, 3, game.getAssets());
 
         physics.setContactListener(player);
         farmers = MapObjectSpawner.spawnLayer(
@@ -131,15 +133,19 @@ public class GameScreen extends BaseScreen {
             }
         }
 
-        if (player.isDead()) {
+        if (player.isDead() || isPlayerOutOfBounds()) {
+
             game.setScreen(
-                    new GameOverScreen(game, mapName));
+                    new GameOverScreen(
+                            game,
+                            mapName));
 
             dispose();
             return;
         }
+
         if (goal != null && goal.isReached()) {
-            game.setScreen(new GameOverScreen(game, mapName));
+            game.setScreen(new WinScreen(game, mapName));
             dispose();
             return;
         }
@@ -205,6 +211,13 @@ public class GameScreen extends BaseScreen {
             debugOverlay.update(delta);
             debugOverlay.render();
         }
+    }
+
+    private boolean isPlayerOutOfBounds() {
+
+        return player.getY() < -DEATH_MARGIN
+                || player.getX() < -DEATH_MARGIN
+                || player.getX() > gameMap.getWorldWidth() + DEATH_MARGIN;
     }
 
     private void updateCamera() {

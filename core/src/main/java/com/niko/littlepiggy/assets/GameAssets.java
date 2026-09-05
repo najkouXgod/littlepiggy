@@ -8,6 +8,7 @@ public class GameAssets {
 
     private final AssetManager manager;
 
+    public static final String WIN_SCREEN = "screens/winscreen.png";
     public static final String SKY = "background/bg.png";
 
     public static final String GAME_OVER = "screens/gameover.png";
@@ -31,6 +32,7 @@ public class GameAssets {
 
         manager.load(SKY, Texture.class);
         manager.load(GAME_OVER, Texture.class);
+        manager.load(WIN_SCREEN, Texture.class);
     }
 
     public void finishLoading() {
