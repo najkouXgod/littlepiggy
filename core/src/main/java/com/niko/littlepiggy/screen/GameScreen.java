@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.world.Goal;
 import com.niko.littlepiggy.ui.HealthBarRenderer;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
@@ -27,6 +28,7 @@ public class GameScreen extends BaseScreen {
 
     private final Main game;
     private final String mapName;
+    private final Goal goal;
 
     private final PhysicsManager physics;
     private final MapManager mapManager;
@@ -58,6 +60,8 @@ public class GameScreen extends BaseScreen {
 
         mapManager = new MapManager(mapName);
         mapManager.createCollisions(physics.getWorld());
+        goal = mapManager.createGoal(
+                physics.getWorld());
 
         player = new Player(physics.getWorld(), 9, 11, game.getAssets());
 
@@ -89,6 +93,11 @@ public class GameScreen extends BaseScreen {
             game.setScreen(
                     new GameOverScreen(game, mapName));
 
+            dispose();
+            return;
+        }
+        if (goal != null && goal.isReached()) {
+            game.setScreen(new GameOverScreen(game, mapName));
             dispose();
             return;
         }
@@ -140,6 +149,9 @@ public class GameScreen extends BaseScreen {
         }
         for (Apple apple : apples) {
             apple.render(batch);
+        }
+        if (goal != null) {
+            goal.render(batch);
         }
 
         batch.end();

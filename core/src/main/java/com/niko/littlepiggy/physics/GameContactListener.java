@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.physics;
 
+import com.niko.littlepiggy.world.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.enemy.Farmer;
@@ -31,6 +32,7 @@ public class GameContactListener implements ContactListener {
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
         checkAppleContact(a, b);
+        checkGoalContact(a, b);
     }
 
     @Override
@@ -62,6 +64,33 @@ public class GameContactListener implements ContactListener {
             player.beginGroundContact();
         } else {
             player.endGroundContact();
+        }
+    }
+
+    private void checkGoalContact(
+            Fixture a,
+            Fixture b) {
+
+        if (a.getUserData() instanceof Goal
+                && b.getBody().getUserData() instanceof Player) {
+
+            Goal goal = (Goal) a.getUserData();
+
+            if (!goal.isReached()) {
+                goal.reach();
+                System.out.println("GOAL REACHED!");
+            }
+        }
+
+        if (b.getUserData() instanceof Goal
+                && a.getBody().getUserData() instanceof Player) {
+
+            Goal goal = (Goal) b.getUserData();
+
+            if (!goal.isReached()) {
+                goal.reach();
+                System.out.println("GOAL REACHED!");
+            }
         }
     }
 

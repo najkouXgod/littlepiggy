@@ -49,7 +49,8 @@ public class MapManager {
     public void createCollisions(World world) {
 
         for (MapLayer layer : map.getLayers()) {
-            if ("Apples".equals(layer.getName()) || "Farmers".equals(layer.getName())) {
+            if ("Apples".equals(layer.getName()) || "Farmers".equals(layer.getName())
+                    || "Goal".equals(layer.getName())) {
                 continue;
             }
             if (!(layer instanceof TiledMapTileLayer)) {
@@ -95,6 +96,60 @@ public class MapManager {
                 }
             }
         }
+    }
+
+    public Goal createGoal(World world) {
+
+        MapLayer layer = map.getLayers().get("Goal");
+
+        if (!(layer instanceof TiledMapTileLayer)) {
+            return null;
+        }
+
+        TiledMapTileLayer goalLayer = (TiledMapTileLayer) layer;
+
+        float tileWidth = goalLayer.getTileWidth();
+        float tileHeight = goalLayer.getTileHeight();
+
+        for (int x = 0; x < goalLayer.getWidth(); x++) {
+
+            for (int y = 0; y < goalLayer.getHeight(); y++) {
+
+                TiledMapTileLayer.Cell cell = goalLayer.getCell(x, y);
+
+                if (cell == null) {
+                    continue;
+                }
+
+                TiledMapTile tile = cell.getTile();
+
+                if (tile == null) {
+                    continue;
+                }
+
+                float worldX = (x * tileWidth + tileWidth / 2f)
+                        / PPM;
+
+                float worldY = (y * tileHeight + tileHeight / 2f)
+                        / PPM;
+
+                Goal goal = new Goal(
+                        world,
+                        tile.getTextureRegion(),
+                        worldX,
+                        worldY);
+
+                /*
+                 * Java-Goal tar över renderingen.
+                 * Annars skulle Tiled också rita bilden.
+                 */
+                goalLayer.setCell(x, y, null);
+
+                return goal;
+            }
+        }
+
+        return null;
     }
 
     private void createCollisionForObject(
