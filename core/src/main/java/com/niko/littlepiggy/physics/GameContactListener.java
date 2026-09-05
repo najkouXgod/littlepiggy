@@ -1,6 +1,7 @@
 package com.niko.littlepiggy.physics;
 
-import com.niko.littlepiggy.world.Goal;
+import com.niko.littlepiggy.combat.Damageable;
+import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.enemy.Farmer;
@@ -27,8 +28,6 @@ public class GameContactListener implements ContactListener {
         String aName = a.getUserData() != null ? a.getUserData().toString() : "NULL";
         String bName = b.getUserData() != null ? b.getUserData().toString() : "NULL";
 
-        System.out.println("beginContact: [" + aName + "] <-> [" + bName + "]");
-
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
         checkAppleContact(a, b);
@@ -42,8 +41,6 @@ public class GameContactListener implements ContactListener {
 
         String aName = a.getUserData() != null ? a.getUserData().toString() : "NULL";
         String bName = b.getUserData() != null ? b.getUserData().toString() : "NULL";
-
-        System.out.println("endContact: [" + aName + "] <-> [" + bName + "]");
 
         checkGroundContact(contact, a, b, false);
         checkFarmerRange(a, b, false);
@@ -89,7 +86,6 @@ public class GameContactListener implements ContactListener {
 
             if (!goal.isReached()) {
                 goal.reach();
-                System.out.println("GOAL REACHED!");
             }
         }
     }
@@ -117,24 +113,25 @@ public class GameContactListener implements ContactListener {
 
         apple.collect();
         player.heal(10f);
-
-        System.out.println(
-                "Apple! HP: "
-                        + player.getHealth()
-                        + "/"
-                        + player.getMaxHealth());
     }
 
-    private void checkProjectileContact(Fixture a, Fixture b) {
+    private void checkProjectileContact(
+            Fixture a,
+            Fixture b) {
 
         Projectile projectile = null;
         Fixture other = null;
 
         if (a.getUserData() instanceof Projectile) {
+
             projectile = (Projectile) a.getUserData();
+
             other = b;
+
         } else if (b.getUserData() instanceof Projectile) {
+
             projectile = (Projectile) b.getUserData();
+
             other = a;
         }
 
@@ -142,31 +139,38 @@ public class GameContactListener implements ContactListener {
             return;
         }
 
-        // Projektilen har redan träffat något denna physics-step
+        /*
+         * Projektilen har redan träffat något
+         * denna physics-step.
+         */
         if (projectile.shouldRemove()) {
             return;
         }
 
-        // Ground
-        if ("ground".equals(other.getUserData())) {
+        // Terrain
+        if ("ground".equals(
+                other.getUserData())) {
+
             projectile.markForRemoval();
             return;
         }
 
-        // Player
-        if (other.getBody().getUserData() instanceof Player) {
+        // Något som kan ta damage
+        Object target = other.getBody().getUserData();
 
-            player.takeDamage(projectile.getDamage());
+        if (target instanceof Damageable) {
+            Damageable damageable = (Damageable) target;
+
+            damageable.takeDamage(
+                    projectile.getDamage());
 
             Vector2 knockback = projectile.getKnockbackImpulse();
 
-            player.applyKnockback(
+            damageable.applyKnockback(
                     knockback.x,
                     knockback.y);
 
             projectile.markForRemoval();
-
-            return;
         }
     }
 
