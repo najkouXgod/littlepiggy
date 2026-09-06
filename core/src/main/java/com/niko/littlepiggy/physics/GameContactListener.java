@@ -91,11 +91,14 @@ public class GameContactListener implements ContactListener {
     }
 
     private void checkGroundContact(Contact contact, Fixture a, Fixture b, boolean begin) {
-        String aName = a.getUserData() != null ? a.getUserData().toString() : "";
-        String bName = b.getUserData() != null ? b.getUserData().toString() : "";
+        boolean aIsFoot = "foot".equals(a.getUserData());
+        boolean bIsFoot = "foot".equals(b.getUserData());
 
-        boolean footOnGround = (aName.equals("foot") && bName.equals("ground")) ||
-                (bName.equals("foot") && aName.equals("ground"));
+        boolean aIsGroundSurface = isGroundSurface(a);
+        boolean bIsGroundSurface = isGroundSurface(b);
+
+        boolean footOnGround = (aIsFoot && bIsGroundSurface)
+                || (bIsFoot && aIsGroundSurface);
 
         if (!footOnGround) {
             return;
@@ -106,6 +109,28 @@ public class GameContactListener implements ContactListener {
         } else {
             player.endGroundContact();
         }
+    }
+
+    /**
+     * Player får hoppa både från terräng och från ovansidan av en Farmer.
+     * Farmerns stora range-sensor räknas däremot aldrig som mark.
+     */
+    private boolean isGroundSurface(Fixture fixture) {
+
+        if ("ground".equals(fixture.getUserData())) {
+            return true;
+        }
+
+        if (fixture.isSensor()
+                || !(fixture.getBody().getUserData() instanceof Farmer)) {
+            return false;
+        }
+
+        /*
+         * Foot-sensorn kan även nudda sidan av en Farmer. Det ska inte
+         * ge "grounded". Farmer måste faktiskt ligga tydligt under Player.
+         */
+        return fixture.getBody().getPosition().y < player.getY() - 0.25f;
     }
 
     private void checkGoalContact(
@@ -203,6 +228,16 @@ public class GameContactListener implements ContactListener {
         Object target = other.getBody().getUserData();
 
         if (target == projectile.getOwner()) {
+            return;
+        }
+
+        /*
+         * Farmers hagel ska aldrig skada andra Farmers. Projektilen får
+         * fortsätta genom dem så en Farmer framför skytten inte fungerar
+         * som en osynlig skottsköld för Player.
+         */
+        if (projectile.getOwner() instanceof Farmer
+                && target instanceof Farmer) {
             return;
         }
 

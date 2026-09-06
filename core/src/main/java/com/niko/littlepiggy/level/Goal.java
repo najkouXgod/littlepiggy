@@ -55,6 +55,10 @@ public class Goal {
         return reached;
     }
 
+    public void reset() {
+        reached = false;
+    }
+
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
     }

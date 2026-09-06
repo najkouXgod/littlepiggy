@@ -229,6 +229,19 @@ public class PlayerPhysics {
 
     public void jump(float xImpulse, float yImpulse) {
 
+        /*
+         * På en ramp kan Box2D ge kroppen positiv Y-hastighet medan den
+         * rör sig uppför sluttningen. Om hoppimpulsen läggs ovanpå den
+         * hastigheten blir ett vanligt hopp oproportionerligt högt.
+         *
+         * Nollställ bara Y precis när ett VANLIGT hopp startar. Dashen
+         * använder inte denna metod, så dash -> ramp kan fortfarande
+         * omvandla den höga X-farten till en kraftig ramp-launch.
+         */
+        body.setLinearVelocity(
+                body.getLinearVelocity().x,
+                0f);
+
         body.applyLinearImpulse(
                 new Vector2(xImpulse, yImpulse),
                 body.getWorldCenter(),

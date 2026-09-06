@@ -143,11 +143,14 @@ public class GameScreen extends BaseScreen {
             dispose();
             return;
         }
-
         if (goal != null && goal.isReached()) {
-            game.setScreen(new WinScreen(game, mapName));
-            dispose();
-            return;
+            if (farmers.size == 0) {
+                game.setScreen(new WinScreen(game, mapName));
+                dispose();
+                return;
+            }
+
+            goal.reset();
         }
 
         for (Farmer farmer : farmers) {

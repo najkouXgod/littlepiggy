@@ -11,6 +11,14 @@ public class FarmerPhysics {
     private static final float SHOOT_RANGE = 3.5f;
 
     /*
+     * Farmer ska kännas nästan "fast" när Player bara springer in i den.
+     * En betydligt högre density gör att vanliga kroppskollisioner bara
+     * flyttar Farmer lite och långsamt. Attack-knockback kompenseras
+     * separat i applyImpulse() så dash/backflip behåller sin gamla fart.
+     */
+    private static final float BODY_DENSITY = 7f;
+
+    /*
      * Dashen ger fortfarande exakt samma initiala impulse som tidigare,
      * men efter träffen bromsas bara X-led mycket snabbare.
      */
@@ -44,6 +52,7 @@ public class FarmerPhysics {
 
         FixtureDef bodyFixtureDef = new FixtureDef();
         bodyFixtureDef.shape = bodyShape;
+        bodyFixtureDef.density = BODY_DENSITY;
         bodyFixtureDef.friction = 0.5f;
 
         bodyFixture = body.createFixture(bodyFixtureDef);
@@ -113,8 +122,17 @@ public class FarmerPhysics {
             float x,
             float y) {
 
+        /*
+         * x/y har hittills i praktiken motsvarat Farmerns hastighetsändring
+         * eftersom kroppen hade ungefär massan 1. När vi gör kroppen tyngre
+         * för att Player inte ska kunna putta runt den, skalar vi avsiktlig
+         * attack-knockback med massan. Resultatet blir samma initiala fart
+         * från dash/backflip som före BODY_DENSITY-ändringen.
+         */
         body.applyLinearImpulse(
-                new Vector2(x, y),
+                new Vector2(
+                        x * body.getMass(),
+                        y * body.getMass()),
                 body.getWorldCenter(),
                 true);
     }

@@ -32,7 +32,7 @@ public class PlayerCombat {
 
     private static final AttackData DASH = new AttackData(
             30f,
-            5f,
+            10f,
             0.01f,
             0.22f,
             0.10f,
@@ -45,8 +45,8 @@ public class PlayerCombat {
      * knockback än dashen men kastar fienden tydligt uppåt.
      */
     private static final float BACKFLIP_DAMAGE = 20f;
-    private static final float BACKFLIP_KNOCKBACK_X = 2.8f;
-    private static final float BACKFLIP_KNOCKBACK_Y = 5.5f;
+    private static final float BACKFLIP_KNOCKBACK_X = 2f;
+    private static final float BACKFLIP_KNOCKBACK_Y = 7f;
     private static final float BACKFLIP_HITBOX_TIME = 0.45f;
     private static final float BACKFLIP_HITBOX_WIDTH = 0.85f;
     private static final float BACKFLIP_HITBOX_HEIGHT = 0.85f;
