@@ -1,6 +1,6 @@
 package com.niko.littlepiggy.physics;
 
-import com.niko.littlepiggy.player.PlayerCombat;
+import com.niko.littlepiggy.player.PlayerAttackHitbox;
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
@@ -52,31 +52,26 @@ public class GameContactListener implements ContactListener {
             Fixture a,
             Fixture b) {
 
-        if (a.getUserData() instanceof PlayerCombat) {
-            PlayerCombat combat = (PlayerCombat) a.getUserData();
+        if (a.getUserData() instanceof PlayerAttackHitbox) {
             applyAttackHit(
-                    combat,
+                    (PlayerAttackHitbox) a.getUserData(),
                     b);
         }
 
-        if (b.getUserData() instanceof PlayerCombat) {
-            PlayerCombat combat = (PlayerCombat) b.getUserData();
+        if (b.getUserData() instanceof PlayerAttackHitbox) {
             applyAttackHit(
-                    combat,
+                    (PlayerAttackHitbox) b.getUserData(),
                     a);
         }
     }
 
     private void applyAttackHit(
-            PlayerCombat combat,
+            PlayerAttackHitbox attackHitbox,
             Fixture targetFixture) {
 
         /*
-         * Jätteviktigt:
-         * Farmer har en stor range-sensor.
-         *
-         * Vi vill träffa Farmers kropp,
-         * inte range-sensorn.
+         * Farmer har en stor range-sensor. Vi vill träffa
+         * Farmers kropp, inte range-sensorn.
          */
         if (targetFixture.isSensor()) {
             return;
@@ -88,7 +83,10 @@ public class GameContactListener implements ContactListener {
 
         if (target instanceof Damageable) {
             Damageable damageable = (Damageable) target;
-            combat.hit(damageable);
+
+            attackHitbox.getCombat().hit(
+                    attackHitbox.getType(),
+                    damageable);
         }
     }
 

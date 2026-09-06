@@ -10,9 +10,18 @@ public class FarmerPhysics {
 
     private static final float SHOOT_RANGE = 3.5f;
 
+    /*
+     * Dashen ger fortfarande exakt samma initiala impulse som tidigare,
+     * men efter träffen bromsas bara X-led mycket snabbare.
+     */
+    private static final float DASH_KNOCKBACK_BRAKE = 10f;
+    private static final float DASH_BRAKE_STOP_SPEED = 0.08f;
+
     private final Body body;
     private final Fixture bodyFixture;
     private final Fixture rangeFixture;
+
+    private boolean dashKnockbackBrakeActive;
 
     public FarmerPhysics(
             World world,
@@ -66,6 +75,38 @@ public class FarmerPhysics {
          * via fixture.getUserData().
          */
         rangeFixture.setUserData(farmer);
+    }
+
+    public void update(float delta) {
+
+        if (!dashKnockbackBrakeActive) {
+            return;
+        }
+
+        Vector2 velocity = body.getLinearVelocity();
+
+        /*
+         * Bromsa endast horisontellt. Y-hastigheten lämnas orörd så
+         * backflip/andra vertikala krafter fortfarande känns naturliga.
+         */
+        float brakeFactor = Math.max(
+                0f,
+                1f - DASH_KNOCKBACK_BRAKE * delta);
+
+        float newVelocityX = velocity.x * brakeFactor;
+
+        if (Math.abs(newVelocityX) <= DASH_BRAKE_STOP_SPEED) {
+            newVelocityX = 0f;
+            dashKnockbackBrakeActive = false;
+        }
+
+        body.setLinearVelocity(
+                newVelocityX,
+                velocity.y);
+    }
+
+    public void startDashKnockbackBrake() {
+        dashKnockbackBrakeActive = true;
     }
 
     public void applyImpulse(

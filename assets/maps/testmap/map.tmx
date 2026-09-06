@@ -4,22 +4,22 @@
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztlkEKgDAMBKN4KOhV//9ULVgoKRLqoZrsDiw9FTolhBUhxCbdmVSiUTyjQ89YoHhqUL3z7t2+fsRgDqEzAtm57hjzlUXa7qGD+E90jg+dMaj3HhqIHS6i85OTN9dV7L6hnZI6vZBd98473hwLb1xHYs1cb/7sisgJackCRQ==
+   eJztl90KgCAMRtfPhVC3dVvv/5T1QdEyJSUq3Twg/aixo8IWUaEQTmU1iZi/A/gADY7aMFT2Vbu/JDSf51jv/pUo/gc1Rr22ls51x0jXWkTqGoDZ8Q5rINnZRXHWgVZn+79Ka/4DWt1Tr3s6Os4pz824b7bnEHJxHCLmpezkA67ccXrwrbf9EasvL+x9d2Ni9vNr7JoWsbpqXd53N0YKOJczu+bIAgYnA34=
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt17sKACAIRuGWbIze/2W7UJvUEGTU+eAnIQcXB53DjtBfbzrFOalESqL1IAAAAACe88tdNdS7SqyHANCIUrOf54R1y1PS5E+UaD1ajTtk4csAoQ==
+   eJzt2LEOABAMRVGLGsX//ywVtpokKtyTvDAYukjThoAdaZzRtYpzSou0ZO9CAAAAADznl7lq0rlKvIsA0PEXfel+7aceoPu11W5NjFhvrDvuUAHYqwCp
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1UEKwCAMRcF/Ae9/3W4lVMFNq+0MBCG7BwETAAB21LrJ4K27k9XeZN6efKN7leZ/0Ay8qf7Hox086e7+3CQ7ugBAagFT
+   eJzt08EKgCAQRdH3Ac22ltr//2QJ7RXBGXLuAcnlu2ASAAD4O4se4MzUbz48hjgx9ZtP7dNsGm/O9vYbmnOgGUCUTP8irXvK0HpFD1isvKd+9/a9w5bMeQCrBgHT
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1jERADAIA0DM4t8CCjgWBnr9XxIBGRIBAH/IpsNLckgAgE0+BtfYJNcVvaMDKQ==
+   eJzt1TEKACAMA0A/2/9/wb0gLoJG7pZ2yJCh0DEA/lO3C8BB7pmuFjsApEv8a4mdIUW1ucvBCyao+AOO
   </data>
  </layer>
  <layer id="16" name="Goal" width="60" height="25">

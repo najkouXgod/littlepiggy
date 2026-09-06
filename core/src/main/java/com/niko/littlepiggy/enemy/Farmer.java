@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import com.niko.littlepiggy.combat.Damageable;
+import com.niko.littlepiggy.combat.KnockbackMode;
 import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.projectile.Pellet;
 
@@ -43,6 +44,8 @@ public class Farmer implements Damageable {
     public Array<Pellet> update(
             float delta,
             Vector2 playerPosition) {
+
+        physics.update(delta);
 
         Array<Pellet> pellets = ai.update(
                 delta,
@@ -87,6 +90,19 @@ public class Farmer implements Damageable {
             float y) {
 
         physics.applyImpulse(x, y);
+    }
+
+    @Override
+    public void applyKnockback(
+            float x,
+            float y,
+            KnockbackMode mode) {
+
+        physics.applyImpulse(x, y);
+
+        if (mode == KnockbackMode.DASH) {
+            physics.startDashKnockbackBrake();
+        }
     }
 
     @Override
