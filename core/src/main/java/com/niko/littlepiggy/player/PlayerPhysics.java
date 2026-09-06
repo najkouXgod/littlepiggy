@@ -157,12 +157,27 @@ public class PlayerPhysics {
             float offsetX,
             Object owner) {
 
+        return createAttackHitbox(
+                width,
+                height,
+                offsetX,
+                0f,
+                owner);
+    }
+
+    public Fixture createAttackHitbox(
+            float width,
+            float height,
+            float offsetX,
+            float offsetY,
+            Object owner) {
+
         PolygonShape shape = new PolygonShape();
 
         shape.setAsBox(
                 width / 2f,
                 height / 2f,
-                new Vector2(offsetX, 0f),
+                new Vector2(offsetX, offsetY),
                 0f);
 
         FixtureDef fixtureDef = new FixtureDef();

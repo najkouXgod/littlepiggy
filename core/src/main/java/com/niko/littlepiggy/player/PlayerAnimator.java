@@ -97,7 +97,7 @@ public class PlayerAnimator {
                 64);
 
         dashAnimation = new Animation<>(
-                0.065f,
+                0.04f,
                 dashFrames);
 
         dashAnimation.setPlayMode(

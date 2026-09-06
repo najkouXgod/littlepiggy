@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 
 import com.niko.littlepiggy.combat.AttackData;
 import com.niko.littlepiggy.combat.Damageable;
+import com.niko.littlepiggy.combat.KnockbackMode;
 
 public class PlayerCombat {
 
@@ -17,24 +18,44 @@ public class PlayerCombat {
         RECOVERY
     }
 
-    private static final float MAX_CHARGE_TIME = 1.2f;
+    /*
+     * Full dash laddas på 0.4 s. Charge-animationen är också
+     * 4 x 0.10 s, så full charge känns tydlig men mycket snabbare.
+     */
+    private static final float MAX_CHARGE_TIME = 0.4f;
 
-    private static final float MIN_DASH_SPEED = 5f;
+    /*
+     * Även en nästan oladdad dash ska kännas användbar direkt.
+     */
+    private static final float MIN_DASH_SPEED = 7f;
     private static final float MAX_DASH_SPEED = 13f;
 
     private static final AttackData DASH = new AttackData(
             30f,
             5f,
-            0.05f,
+            0.01f,
             0.22f,
-            0.25f,
+            0.10f,
             0.55f,
             0.55f,
             0.45f);
 
+    /*
+     * Bakåtvolten är en separat attack. Den har mindre horisontell
+     * knockback än dashen men kastar fienden tydligt uppåt.
+     */
+    private static final float BACKFLIP_DAMAGE = 20f;
+    private static final float BACKFLIP_KNOCKBACK_X = 2.8f;
+    private static final float BACKFLIP_KNOCKBACK_Y = 5.5f;
+    private static final float BACKFLIP_HITBOX_TIME = 0.45f;
+    private static final float BACKFLIP_HITBOX_WIDTH = 0.85f;
+    private static final float BACKFLIP_HITBOX_HEIGHT = 0.85f;
+    private static final float BACKFLIP_HITBOX_OFFSET_Y = 0.08f;
+
     private final PlayerPhysics physics;
 
-    private final ObjectSet<Damageable> hitTargets = new ObjectSet<>();
+    private final ObjectSet<Damageable> dashHitTargets = new ObjectSet<>();
+    private final ObjectSet<Damageable> backflipHitTargets = new ObjectSet<>();
 
     private CombatState state = CombatState.IDLE;
 
@@ -43,8 +64,11 @@ public class PlayerCombat {
     private float chargePercent;
 
     private int dashDirection = 1;
+    private int backflipDirection = 1;
 
-    private Fixture activeHitbox;
+    private Fixture activeDashHitbox;
+    private Fixture activeBackflipHitbox;
+    private float backflipHitboxTime;
 
     public PlayerCombat(PlayerPhysics physics) {
         this.physics = physics;
@@ -54,6 +78,8 @@ public class PlayerCombat {
             float delta,
             boolean chargeHeld,
             boolean facingLeft) {
+
+        updateBackflipHitbox(delta);
 
         switch (state) {
 
@@ -120,6 +146,47 @@ public class PlayerCombat {
         }
     }
 
+    /**
+     * Kallas exakt när PlayerController startar luft-hoppet/bakåtvolten.
+     * Hitboxen lever oberoende av dash-state-maskinen.
+     */
+    public void startBackflipAttack(boolean facingLeft) {
+
+        if (activeBackflipHitbox != null) {
+            physics.destroyFixture(activeBackflipHitbox);
+        }
+
+        backflipDirection = facingLeft ? -1 : 1;
+        backflipHitboxTime = 0f;
+        backflipHitTargets.clear();
+
+        PlayerAttackHitbox hitboxData = new PlayerAttackHitbox(
+                this,
+                PlayerAttackHitbox.Type.BACKFLIP);
+
+        activeBackflipHitbox = physics.createAttackHitbox(
+                BACKFLIP_HITBOX_WIDTH,
+                BACKFLIP_HITBOX_HEIGHT,
+                0f,
+                BACKFLIP_HITBOX_OFFSET_Y,
+                hitboxData);
+    }
+
+    private void updateBackflipHitbox(float delta) {
+
+        if (activeBackflipHitbox == null) {
+            return;
+        }
+
+        backflipHitboxTime += delta;
+
+        if (backflipHitboxTime >= BACKFLIP_HITBOX_TIME) {
+            physics.destroyFixture(activeBackflipHitbox);
+            activeBackflipHitbox = null;
+            backflipHitboxTime = 0f;
+        }
+    }
+
     public boolean isDashSequence() {
 
         return state == CombatState.STARTUP
@@ -152,11 +219,10 @@ public class PlayerCombat {
         state = CombatState.CHARGING;
 
         chargeTime = 0f;
+        chargePercent = 0f;
         stateTime = 0f;
 
-        /*
-         * Direction låses när laddningen börjar.
-         */
+        // Direction låses när laddningen börjar.
         dashDirection = facingLeft ? -1 : 1;
 
         physics.setHorizontalVelocity(0f);
@@ -178,24 +244,27 @@ public class PlayerCombat {
         state = CombatState.ACTIVE;
         stateTime = 0f;
 
-        hitTargets.clear();
+        dashHitTargets.clear();
 
-        activeHitbox = physics.createAttackHitbox(
+        PlayerAttackHitbox hitboxData = new PlayerAttackHitbox(
+                this,
+                PlayerAttackHitbox.Type.DASH);
+
+        activeDashHitbox = physics.createAttackHitbox(
                 DASH.hitboxWidth(),
                 DASH.hitboxHeight(),
-                DASH.hitboxOffsetX()
-                        * dashDirection,
-                this);
+                DASH.hitboxOffsetX() * dashDirection,
+                0f,
+                hitboxData);
     }
 
     private void endDash() {
 
-        if (activeHitbox != null) {
+        if (activeDashHitbox != null) {
 
-            physics.destroyFixture(
-                    activeHitbox);
+            physics.destroyFixture(activeDashHitbox);
 
-            activeHitbox = null;
+            activeDashHitbox = null;
         }
 
         physics.setHorizontalVelocity(0f);
@@ -204,25 +273,37 @@ public class PlayerCombat {
         stateTime = 0f;
     }
 
-    public void hit(Damageable target) {
+    public void hit(
+            PlayerAttackHitbox.Type type,
+            Damageable target) {
+
+        switch (type) {
+            case DASH:
+                hitWithDash(target);
+                break;
+
+            case BACKFLIP:
+                hitWithBackflip(target);
+                break;
+        }
+    }
+
+    private void hitWithDash(Damageable target) {
 
         if (state != CombatState.ACTIVE) {
             return;
         }
 
-        /*
-         * Samma Farmer ska bara kunna träffas
-         * en gång under samma dash.
-         */
-        if (hitTargets.contains(target)) {
+        if (dashHitTargets.contains(target)) {
             return;
         }
 
-        hitTargets.add(target);
+        dashHitTargets.add(target);
 
         /*
-         * Halvladdad attack gör mindre skada/
-         * knockback än full charge.
+         * Samma damage/initiala knockback som tidigare.
+         * Skillnaden är att mottagaren får veta att knockbacken
+         * kom från DASH och kan bromsa den snabbare efteråt.
          */
         float power = 0.4f + chargePercent * 0.6f;
 
@@ -233,7 +314,28 @@ public class PlayerCombat {
                 dashDirection
                         * DASH.knockback()
                         * power,
-                0.8f * power);
+                0.8f * power,
+                KnockbackMode.DASH);
+    }
+
+    private void hitWithBackflip(Damageable target) {
+
+        if (activeBackflipHitbox == null) {
+            return;
+        }
+
+        if (backflipHitTargets.contains(target)) {
+            return;
+        }
+
+        backflipHitTargets.add(target);
+
+        target.takeDamage(BACKFLIP_DAMAGE);
+
+        target.applyKnockback(
+                backflipDirection * BACKFLIP_KNOCKBACK_X,
+                BACKFLIP_KNOCKBACK_Y,
+                KnockbackMode.NORMAL);
     }
 
     public boolean isCharging() {

@@ -54,6 +54,8 @@ public class Player implements Damageable {
 
         if (controller.didStartDoubleJump()) {
             animator.startDoubleJump();
+            combat.startBackflipAttack(
+                    controller.isFacingLeft());
         }
 
         combat.update(
