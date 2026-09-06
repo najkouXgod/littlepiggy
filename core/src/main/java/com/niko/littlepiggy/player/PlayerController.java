@@ -7,8 +7,6 @@ import com.niko.littlepiggy.debug.DebugConfig;
 
 public class PlayerController {
 
-    private static final int MAX_JUMPS = 2;
-
     private final PlayerPhysics physics;
 
     private boolean moving;
@@ -18,7 +16,12 @@ public class PlayerController {
     private boolean dashChargeHeld;
     private boolean wasGrounded;
 
-    private int jumpsUsed;
+    /*
+     * Ett luft-hopp finns tillgängligt tills det används.
+     * Det betyder att spelaren kan använda bakåtvolten både
+     * efter ett vanligt hopp och efter att ha gått ut från en kant.
+     */
+    private boolean airJumpAvailable = true;
     private boolean doubleJumpStartedThisFrame;
 
     public PlayerController(PlayerPhysics physics) {
@@ -45,12 +48,12 @@ public class PlayerController {
         boolean grounded = physics.isGrounded();
 
         /*
-         * Återställ hopp-räknaren först när spelaren faktiskt
-         * landar. Då kan vi inte råka ge tillbaka dubbelhoppet
-         * under de första framesen av ett vanligt hopp.
+         * När spelaren landar får den tillbaka sitt enda luft-hopp.
+         * Vi återställer det bara vid en faktisk landning, inte när
+         * spelaren lämnar marken.
          */
         if (grounded && !wasGrounded) {
-            jumpsUsed = 0;
+            airJumpAvailable = true;
         }
 
         wasGrounded = grounded;
@@ -105,10 +108,12 @@ public class PlayerController {
                         0f,
                         DebugConfig.JUMP_MINPOWER);
 
-                jumpsUsed = 1;
+                /*
+                 * Det vanliga markhoppet förbrukar inte luft-hoppet.
+                 * Därför finns bakåtvolten fortfarande kvar i luften.
+                 */
 
-            } else if (jumpsUsed == 1
-                    && jumpsUsed < MAX_JUMPS) {
+            } else if (airJumpAvailable) {
 
                 /*
                  * Dubbelhoppet nollställer vertikal fart först.
@@ -120,7 +125,7 @@ public class PlayerController {
                         0f,
                         DebugConfig.DOUBLE_JUMP_POWER);
 
-                jumpsUsed = 2;
+                airJumpAvailable = false;
                 doubleJumpStartedThisFrame = true;
             }
         }
