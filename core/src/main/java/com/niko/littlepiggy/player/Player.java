@@ -52,6 +52,10 @@ public class Player implements Damageable {
                 delta,
                 combat.blocksMovement());
 
+        if (controller.didStartDoubleJump()) {
+            animator.startDoubleJump();
+        }
+
         combat.update(
                 delta,
                 controller.isDashChargeHeld(),
@@ -64,6 +68,7 @@ public class Player implements Damageable {
                 controller.isMoving(),
                 combat.isCharging(),
                 combat.isDashSequence(),
+                physics.isGrounded(),
                 controller.isFacingLeft());
     }
 

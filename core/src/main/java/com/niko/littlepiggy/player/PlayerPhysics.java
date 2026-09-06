@@ -7,14 +7,6 @@ public class PlayerPhysics {
 
     /*
      * Kroppen byggs som en kapsel:
-     *
-     * _______
-     * ( )
-     * -------
-     *
-     * En box i mitten + en cirkel på varje sida.
-     *
-     * Justera dessa senare efter hur den nya grisen ser ut.
      */
     private static final float BODY_RADIUS = 0.20f;
     private static final float BODY_HALF_LENGTH = 0.22f;
@@ -22,10 +14,6 @@ public class PlayerPhysics {
 
     /*
      * Två små foot sensors.
-     *
-     * gris
-     * (=======)
-     * • •
      */
     private static final float FOOT_X = 0.28f;
     private static final float FOOT_Y = -0.3f;
@@ -225,6 +213,23 @@ public class PlayerPhysics {
     }
 
     public void jump(float xImpulse, float yImpulse) {
+
+        body.applyLinearImpulse(
+                new Vector2(xImpulse, yImpulse),
+                body.getWorldCenter(),
+                true);
+    }
+
+    public void doubleJump(float xImpulse, float yImpulse) {
+
+        /*
+         * Gör dubbelhoppet konsekvent oavsett om spelaren
+         * fortfarande är på väg upp eller redan har börjat falla.
+         * Horisontell fart behålls.
+         */
+        body.setLinearVelocity(
+                body.getLinearVelocity().x,
+                0f);
 
         body.applyLinearImpulse(
                 new Vector2(xImpulse, yImpulse),

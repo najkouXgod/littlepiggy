@@ -13,19 +13,24 @@ public class PlayerAnimator {
         IDLE,
         RUNNING,
         CHARGING,
-        DASHING
+        DASHING,
+        DOUBLE_JUMP
     }
+
+    private static final float DOUBLE_JUMP_FRAME_TIME = 0.055f;
 
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> runningAnimation;
     private final Animation<TextureRegion> chargeAnimation;
     private final Animation<TextureRegion> dashAnimation;
+    private final Animation<TextureRegion> doubleJumpAnimation;
 
     private final Sprite sprite;
 
     private AnimationState currentState = AnimationState.IDLE;
 
     private float stateTime;
+    private boolean doubleJumpAnimationActive;
 
     public PlayerAnimator(GameAssets assets) {
 
@@ -98,11 +103,40 @@ public class PlayerAnimator {
         dashAnimation.setPlayMode(
                 Animation.PlayMode.NORMAL);
 
+        /*
+         * Fjärde raden i spritesheeten (row index 3).
+         * 11 frames à 64x64: columns 0-10.
+         */
+        TextureRegion[] doubleJumpFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                3,
+                0,
+                11,
+                64,
+                64);
+
+        doubleJumpAnimation = new Animation<>(
+                DOUBLE_JUMP_FRAME_TIME,
+                doubleJumpFrames);
+
+        doubleJumpAnimation.setPlayMode(
+                Animation.PlayMode.NORMAL);
+
         sprite = new Sprite(idleFrames[0]);
 
         sprite.setSize(
                 1f,
                 1f);
+    }
+
+    /**
+     * Startar bakåtvolten från frame 0.
+     * Det här är ett event, inte ett permanent movement-state.
+     */
+    public void startDoubleJump() {
+        doubleJumpAnimationActive = true;
+        currentState = AnimationState.DOUBLE_JUMP;
+        stateTime = 0f;
     }
 
     public void update(
@@ -112,11 +146,30 @@ public class PlayerAnimator {
             boolean moving,
             boolean charging,
             boolean dashing,
+            boolean grounded,
             boolean facingLeft) {
+
+        /*
+         * Om vi landar innan volten hunnit bli klar avbryts den,
+         * så att grisen inte fortsätter snurra på marken.
+         */
+        if (doubleJumpAnimationActive && grounded) {
+            doubleJumpAnimationActive = false;
+        }
+
+        if (doubleJumpAnimationActive
+                && doubleJumpAnimation.isAnimationFinished(stateTime)) {
+
+            doubleJumpAnimationActive = false;
+        }
 
         AnimationState newState;
 
-        if (charging) {
+        if (doubleJumpAnimationActive) {
+
+            newState = AnimationState.DOUBLE_JUMP;
+
+        } else if (charging) {
 
             newState = AnimationState.CHARGING;
 
@@ -165,6 +218,13 @@ public class PlayerAnimator {
             case DASHING:
 
                 frame = dashAnimation
+                        .getKeyFrame(stateTime);
+
+                break;
+
+            case DOUBLE_JUMP:
+
+                frame = doubleJumpAnimation
                         .getKeyFrame(stateTime);
 
                 break;
