@@ -36,7 +36,7 @@ public class Farmer implements Damageable {
          */
         physics.setOwner(this);
 
-        ai = new FarmerAI(physics, this);
+        ai = new FarmerAI(physics, this, assets);
 
         animator = new FarmerAnimator(assets);
     }
@@ -82,6 +82,8 @@ public class Farmer implements Damageable {
         health = Math.max(
                 0f,
                 health - amount);
+
+        animator.triggerFlash();
     }
 
     @Override

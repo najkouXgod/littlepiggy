@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.projectile.Pellet;
 
 public class FarmerAI {
@@ -16,6 +17,7 @@ public class FarmerAI {
 
     private final FarmerPhysics physics;
     private final Farmer owner;
+    private final GameAssets assets;
 
     private boolean facingLeft;
 
@@ -28,9 +30,10 @@ public class FarmerAI {
 
     private float shootCooldown;
 
-    public FarmerAI(FarmerPhysics physics, Farmer owner) {
+    public FarmerAI(FarmerPhysics physics, Farmer owner, GameAssets assets) {
         this.physics = physics;
         this.owner = owner;
+        this.assets = assets;
     }
 
     public Array<Pellet> update(
@@ -51,6 +54,8 @@ public class FarmerAI {
         if (canShoot) {
 
             shootCooldown = SHOOT_INTERVAL;
+
+            assets.playSound(GameAssets.SFX_FARMER_SHOT);
 
             return createPellets(
                     playerPosition);

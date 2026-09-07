@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.fx.HitFlash;
 
 public class FarmerAnimator {
 
     private final Sprite sprite;
+    private final HitFlash hitFlash = new HitFlash();
 
     public FarmerAnimator(GameAssets assets) {
 
@@ -38,9 +40,17 @@ public class FarmerAnimator {
         sprite.setPosition(
                 x - sprite.getWidth() / 2f,
                 y - sprite.getHeight() / 2f);
+
+        hitFlash.update(delta);
+    }
+
+    public void triggerFlash() {
+        hitFlash.trigger();
     }
 
     public void render(SpriteBatch batch) {
+        hitFlash.begin(batch);
         sprite.draw(batch);
+        hitFlash.end(batch);
     }
 }

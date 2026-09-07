@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.niko.littlepiggy.assets.GameAssets;
+import com.niko.littlepiggy.fx.HitFlash;
 
 public class PlayerAnimator {
 
@@ -26,6 +27,7 @@ public class PlayerAnimator {
     private final Animation<TextureRegion> doubleJumpAnimation;
 
     private final Sprite sprite;
+    private final HitFlash hitFlash = new HitFlash();
 
     private AnimationState currentState = AnimationState.IDLE;
 
@@ -149,6 +151,8 @@ public class PlayerAnimator {
             boolean grounded,
             boolean facingLeft) {
 
+        hitFlash.update(delta);
+
         /*
          * Om vi landar innan volten hunnit bli klar avbryts den,
          * så att grisen inte fortsätter snurra på marken.
@@ -248,7 +252,13 @@ public class PlayerAnimator {
                 y - sprite.getHeight() / 2f);
     }
 
+    public void triggerFlash() {
+        hitFlash.trigger();
+    }
+
     public void render(SpriteBatch batch) {
+        hitFlash.begin(batch);
         sprite.draw(batch);
+        hitFlash.end(batch);
     }
 }

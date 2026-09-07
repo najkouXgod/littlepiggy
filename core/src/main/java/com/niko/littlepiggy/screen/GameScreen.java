@@ -28,12 +28,24 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.niko.littlepiggy.world.GameMap;
 import com.niko.littlepiggy.world.MapObjectSpawner;
 import com.niko.littlepiggy.world.TerrainCollisionFactory;
+import com.niko.littlepiggy.fx.ScreenShake;
+import com.niko.littlepiggy.fx.HitStop;
 
 public class GameScreen extends BaseScreen {
 
     private static final float DEATH_MARGIN = 3f;
     private static final float CAMERA_MARGIN_X = 2f;
     private static final float CAMERA_MARGIN_Y = 1.5f;
+
+    /*
+     * Fixed timestep för all gameplay-logik (fysik, AI, spelare).
+     * Gör att spelet beter sig identiskt oavsett bildfrekvens,
+     * och gör hit-stop trivialt: hit-stop = kör noll steg denna frame.
+     */
+    private static final float FIXED_TIMESTEP = 1f / 60f;
+    private static final float MAX_FRAME_TIME = 0.25f;
+
+    private float accumulator = 0f;
 
     private DebugOverlay debugOverlay;
 
@@ -118,10 +130,24 @@ public class GameScreen extends BaseScreen {
     }
 
     @Override
-    public void render(float delta) {
+    public void render(float rawDelta) {
         ScreenUtils.clear(Color.BLUE);
 
-        physics.step(delta);
+        HitStop.update(rawDelta);
+
+        if (!HitStop.isActive()) {
+
+            float delta = Math.min(rawDelta, MAX_FRAME_TIME);
+
+            accumulator += delta;
+
+            while (accumulator >= FIXED_TIMESTEP) {
+
+                stepGameplay(FIXED_TIMESTEP);
+
+                accumulator -= FIXED_TIMESTEP;
+            }
+        }
 
         for (int i = farmers.size - 1; i >= 0; i--) {
 
@@ -130,6 +156,8 @@ public class GameScreen extends BaseScreen {
             if (farmer.isDead()) {
                 farmer.destroy();
                 farmers.removeIndex(i);
+                ScreenShake.addTrauma(0.4f);
+                HitStop.trigger(0.08f);
             }
         }
 
@@ -153,14 +181,6 @@ public class GameScreen extends BaseScreen {
             goal.reset();
         }
 
-        for (Farmer farmer : farmers) {
-
-            projectileManager.addAll(
-                    farmer.update(
-                            delta,
-                            player.getPosition()));
-        }
-
         for (int i = apples.size - 1; i >= 0; i--) {
 
             Apple apple = apples.get(i);
@@ -171,11 +191,12 @@ public class GameScreen extends BaseScreen {
             }
         }
 
-        updateCamera();
-
-        player.update(delta);
-
-        projectileManager.update(delta);
+        /*
+         * Kameran (inklusive skärmskakning) uppdateras med RÅ delta,
+         * inte fixed timestep - det är bara visuellt och ska inte
+         * frysas eller hacka till av hit-stop.
+         */
+        updateCamera(rawDelta);
 
         batch.setProjectionMatrix(camera.combined);
 
@@ -211,9 +232,31 @@ public class GameScreen extends BaseScreen {
                 player.getMaxHealth());
 
         if (debugOverlay != null) {
-            debugOverlay.update(delta);
+            debugOverlay.update(rawDelta);
             debugOverlay.render();
         }
+    }
+
+    /**
+     * All gameplay-logik som måste vara deterministisk och
+     * som hit-stop ska kunna frysa. Körs 0, 1 eller flera
+     * gånger per renderad frame beroende på bildfrekvens.
+     */
+    private void stepGameplay(float delta) {
+
+        physics.step(delta);
+
+        for (Farmer farmer : farmers) {
+
+            projectileManager.addAll(
+                    farmer.update(
+                            delta,
+                            player.getPosition()));
+        }
+
+        player.update(delta);
+
+        projectileManager.update(delta);
     }
 
     private boolean isPlayerOutOfBounds() {
@@ -223,7 +266,9 @@ public class GameScreen extends BaseScreen {
                 || player.getX() > gameMap.getWorldWidth() + DEATH_MARGIN;
     }
 
-    private void updateCamera() {
+    private void updateCamera(float delta) {
+
+        ScreenShake.update(delta);
 
         float halfWidth = camera.viewportWidth * camera.zoom / 2f;
 
@@ -252,8 +297,8 @@ public class GameScreen extends BaseScreen {
                 maxY);
 
         camera.position.set(
-                cameraX,
-                cameraY,
+                cameraX + ScreenShake.getOffsetX(),
+                cameraY + ScreenShake.getOffsetY(),
                 0f);
 
         camera.update();

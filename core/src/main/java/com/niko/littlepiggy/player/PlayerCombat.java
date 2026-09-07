@@ -4,9 +4,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.utils.ObjectSet;
 
+import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.combat.AttackData;
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.combat.KnockbackMode;
+import com.niko.littlepiggy.fx.ScreenShake;
+import com.niko.littlepiggy.fx.HitStop;
 
 public class PlayerCombat {
 
@@ -53,6 +56,7 @@ public class PlayerCombat {
     private static final float BACKFLIP_HITBOX_OFFSET_Y = 0.08f;
 
     private final PlayerPhysics physics;
+    private final GameAssets assets;
 
     private final ObjectSet<Damageable> dashHitTargets = new ObjectSet<>();
     private final ObjectSet<Damageable> backflipHitTargets = new ObjectSet<>();
@@ -70,8 +74,9 @@ public class PlayerCombat {
     private Fixture activeBackflipHitbox;
     private float backflipHitboxTime;
 
-    public PlayerCombat(PlayerPhysics physics) {
+    public PlayerCombat(PlayerPhysics physics, GameAssets assets) {
         this.physics = physics;
+        this.assets = assets;
     }
 
     public void update(
@@ -244,6 +249,8 @@ public class PlayerCombat {
         state = CombatState.ACTIVE;
         stateTime = 0f;
 
+        assets.playSound(GameAssets.SFX_DASH_SWIPE);
+
         dashHitTargets.clear();
 
         PlayerAttackHitbox hitboxData = new PlayerAttackHitbox(
@@ -300,6 +307,10 @@ public class PlayerCombat {
 
         dashHitTargets.add(target);
 
+        assets.playSound(GameAssets.SFX_DASH_HIT);
+        ScreenShake.addTrauma(0.25f);
+        HitStop.trigger(0.05f);
+
         /*
          * Samma damage/initiala knockback som tidigare.
          * Skillnaden är att mottagaren får veta att knockbacken
@@ -329,6 +340,10 @@ public class PlayerCombat {
         }
 
         backflipHitTargets.add(target);
+
+        assets.playSound(GameAssets.SFX_BACKFLIP_HIT);
+        ScreenShake.addTrauma(0.25f);
+        HitStop.trigger(0.05f);
 
         target.takeDamage(BACKFLIP_DAMAGE);
 

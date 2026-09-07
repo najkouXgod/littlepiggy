@@ -1,6 +1,7 @@
 package com.niko.littlepiggy.player;
 
 import com.niko.littlepiggy.combat.Damageable;
+import com.niko.littlepiggy.fx.ScreenShake;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -28,7 +29,7 @@ public class Player implements Damageable {
                 startX,
                 startY);
 
-        combat = new PlayerCombat(physics);
+        combat = new PlayerCombat(physics, assets);
 
         /*
          * Viktigt:
@@ -134,6 +135,8 @@ public class Player implements Damageable {
     @Override
     public void takeDamage(float amount) {
         playerStats.takeDamage(amount);
+        ScreenShake.addTrauma(0.5f);
+        animator.triggerFlash();
     }
 
     public void heal(float amount) {
