@@ -6,12 +6,17 @@ import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
 import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.enemy.Farmer;
+import com.niko.littlepiggy.enemy.Dog;
 import com.niko.littlepiggy.item.Apple;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class GameContactListener implements ContactListener {
+
+    private static final float DOG_CONTACT_DAMAGE = 15f;
+    private static final float DOG_CONTACT_KNOCKBACK_X = 4f;
+    private static final float DOG_CONTACT_KNOCKBACK_Y = 2f;
 
     private final Player player;
 
@@ -32,6 +37,8 @@ public class GameContactListener implements ContactListener {
         checkAttackContact(a, b);
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
+        checkDogRange(a, b, true);
+        checkDogContact(a, b);
         checkAppleContact(a, b);
         checkGoalContact(a, b);
     }
@@ -46,6 +53,7 @@ public class GameContactListener implements ContactListener {
 
         checkGroundContact(contact, a, b, false);
         checkFarmerRange(a, b, false);
+        checkDogRange(a, b, false);
     }
 
     private void checkAttackContact(
@@ -289,6 +297,80 @@ public class GameContactListener implements ContactListener {
         } else {
             farmer.playerExitedRange();
         }
+    }
+
+    private void checkDogRange(
+            Fixture a,
+            Fixture b,
+            boolean entered) {
+
+        Dog dog = null;
+
+        if (a.isSensor()
+                && a.getUserData() instanceof Dog
+                && b.getBody().getUserData() instanceof Player) {
+
+            dog = (Dog) a.getUserData();
+
+        } else if (b.isSensor()
+                && b.getUserData() instanceof Dog
+                && a.getBody().getUserData() instanceof Player) {
+
+            dog = (Dog) b.getUserData();
+        }
+
+        if (dog == null) {
+            return;
+        }
+
+        if (entered) {
+            dog.playerEnteredRange();
+        } else {
+            dog.playerExitedRange();
+        }
+    }
+
+    /**
+     * Dog skadar Player direkt via kroppskontakt, men bara under
+     * själva lunge-anfallet - annars skulle det räcka att gå emot
+     * en Dog av misstag för att ta skada.
+     */
+    private void checkDogContact(Fixture a, Fixture b) {
+
+        Dog dog = null;
+        Fixture playerFixture = null;
+
+        if (!a.isSensor()
+                && a.getBody().getUserData() instanceof Dog
+                && !b.isSensor()
+                && b.getBody().getUserData() instanceof Player) {
+
+            dog = (Dog) a.getBody().getUserData();
+            playerFixture = b;
+
+        } else if (!b.isSensor()
+                && b.getBody().getUserData() instanceof Dog
+                && !a.isSensor()
+                && a.getBody().getUserData() instanceof Player) {
+
+            dog = (Dog) b.getBody().getUserData();
+            playerFixture = a;
+        }
+
+        if (dog == null || !dog.isLungeHitAvailable()) {
+            return;
+        }
+
+        dog.consumeLungeHit();
+
+        player.takeDamage(DOG_CONTACT_DAMAGE);
+
+        float knockbackDirection = Math.signum(
+                player.getX() - dog.getPosition().x);
+
+        player.applyKnockback(
+                knockbackDirection * DOG_CONTACT_KNOCKBACK_X,
+                DOG_CONTACT_KNOCKBACK_Y);
     }
 
     @Override

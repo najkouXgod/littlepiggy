@@ -19,6 +19,7 @@ import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.item.Apple;
 import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.enemy.Farmer;
+import com.niko.littlepiggy.enemy.Dog;
 import com.niko.littlepiggy.debug.DebugConfig;
 import com.niko.littlepiggy.debug.DebugOverlay;
 import com.niko.littlepiggy.Main;
@@ -63,6 +64,7 @@ public class GameScreen extends BaseScreen {
     private final Player player;
 
     private final Array<Farmer> farmers;
+    private final Array<Dog> dogs;
     private final Array<Apple> apples;
 
     private final Texture sky;
@@ -94,6 +96,14 @@ public class GameScreen extends BaseScreen {
                 tiledMap,
                 "Farmers",
                 (tile, x, y) -> new Farmer(
+                        world,
+                        game.getAssets(),
+                        x,
+                        y));
+        dogs = MapObjectSpawner.spawnLayer(
+                tiledMap,
+                "Dogs",
+                (tile, x, y) -> new Dog(
                         world,
                         game.getAssets(),
                         x,
@@ -161,6 +171,18 @@ public class GameScreen extends BaseScreen {
             }
         }
 
+        for (int i = dogs.size - 1; i >= 0; i--) {
+
+            Dog dog = dogs.get(i);
+
+            if (dog.isDead()) {
+                dog.destroy();
+                dogs.removeIndex(i);
+                ScreenShake.addTrauma(0.4f);
+                HitStop.trigger(0.08f);
+            }
+        }
+
         if (player.isDead() || isPlayerOutOfBounds()) {
 
             game.setScreen(
@@ -172,7 +194,7 @@ public class GameScreen extends BaseScreen {
             return;
         }
         if (goal != null && goal.isReached()) {
-            if (farmers.size == 0) {
+            if (farmers.size == 0 && dogs.size == 0) {
                 game.setScreen(new WinScreen(game, mapName));
                 dispose();
                 return;

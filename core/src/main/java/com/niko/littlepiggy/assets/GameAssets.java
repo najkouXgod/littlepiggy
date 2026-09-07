@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.assets;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
@@ -20,20 +21,28 @@ public class GameAssets {
 
     public static final String FARMER_SHOOTING = "farmer/shooting.png";
 
-    public static final String SFX_DASH_SWIPE = "sounds/clean_swipe.wav";
-    public static final String SFX_DASH_HIT = "sounds/clean_punch.wav";
-    public static final String SFX_BACKFLIP_HIT = "sounds/clean_punch_2.wav";
-    public static final String SFX_FARMER_SHOT = "sounds/clean_shot_muffled.wav";
+    /*
+     * PLACEHOLDER: pekar just nu på samma fil som FARMER_IDLE
+     * eftersom det inte finns en egen dog-sprite än. Byt till en
+     * riktig fil (och lägg till en manager.load(...)-rad i loadAll()
+     * om det blir en annan fil) när konsten finns på plats.
+     */
+    public static final String DOG_IDLE = FARMER_IDLE;
+
+    public static final String SFX_DASH_SWIPE = "sounds/swipe.wav";
+    public static final String SFX_DASH_HIT = "sounds/punch.wav";
+    public static final String SFX_BACKFLIP_HIT = "sounds/punch_2.wav";
+    public static final String SFX_FARMER_SHOT = "sounds/shot_muffled.wav";
 
     /*
      * Volym per ljud. shot_muffled och punch_2 är taget från paket
      * som ofta är inspelade högre än swipe/punch, så vi trimmar dem
      * lite i koden istället för att göra om filerna.
      */
-    private static final float VOLUME_DASH_SWIPE = 0.5f;
-    private static final float VOLUME_DASH_HIT = 0.5f;
-    private static final float VOLUME_BACKFLIP_HIT = 0.5f;
-    private static final float VOLUME_FARMER_SHOT = 0.5f;
+    private static final float VOLUME_DASH_SWIPE = 0.8f;
+    private static final float VOLUME_DASH_HIT = 1f;
+    private static final float VOLUME_BACKFLIP_HIT = 1f;
+    private static final float VOLUME_FARMER_SHOT = 0.6f;
 
     public GameAssets() {
         manager = new AssetManager();
