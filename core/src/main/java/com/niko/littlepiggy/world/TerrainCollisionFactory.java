@@ -17,6 +17,8 @@ import com.badlogic.gdx.math.Rectangle;
 
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.niko.littlepiggy.lighting.LightingManager;
+
 public final class TerrainCollisionFactory {
 
     private TerrainCollisionFactory() {
@@ -133,6 +135,8 @@ public final class TerrainCollisionFactory {
 
         fixture.setUserData("ground");
 
+        tagAsLightBlocker(fixture);
+
         shape.dispose();
     }
 
@@ -198,6 +202,21 @@ public final class TerrainCollisionFactory {
 
         fixture.setUserData("ground");
 
+        tagAsLightBlocker(fixture);
+
         shape.dispose();
+    }
+
+    /**
+     * Markerar en fixture som ljusblockerande (se LightingManager
+     * för hela förklaringen av varför detta behövs och hur det
+     * fungerar ihop med Box2DLights).
+     */
+    private static void tagAsLightBlocker(Fixture fixture) {
+
+        Filter filter = new Filter();
+        filter.categoryBits = LightingManager.CATEGORY_LIGHT_BLOCKER;
+
+        fixture.setFilterData(filter);
     }
 }

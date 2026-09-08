@@ -1,4 +1,4 @@
-package com.niko.littlepiggy.enemy;
+package com.niko.littlepiggy.enemy.farmer;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;

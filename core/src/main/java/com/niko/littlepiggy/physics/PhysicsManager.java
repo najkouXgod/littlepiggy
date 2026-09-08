@@ -1,7 +1,6 @@
 package com.niko.littlepiggy.physics;
 
 import com.niko.littlepiggy.player.Player;
-import com.niko.littlepiggy.enemy.Farmer;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;

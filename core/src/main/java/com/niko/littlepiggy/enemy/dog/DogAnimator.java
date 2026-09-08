@@ -1,4 +1,4 @@
-package com.niko.littlepiggy.enemy;
+package com.niko.littlepiggy.enemy.dog;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;

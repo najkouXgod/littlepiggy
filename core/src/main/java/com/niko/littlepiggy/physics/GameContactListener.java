@@ -5,8 +5,8 @@ import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
 import com.niko.littlepiggy.player.Player;
-import com.niko.littlepiggy.enemy.Farmer;
-import com.niko.littlepiggy.enemy.Dog;
+import com.niko.littlepiggy.enemy.farmer.Farmer;
+import com.niko.littlepiggy.enemy.dog.Dog;
 import com.niko.littlepiggy.item.Apple;
 
 import com.badlogic.gdx.math.Vector2;

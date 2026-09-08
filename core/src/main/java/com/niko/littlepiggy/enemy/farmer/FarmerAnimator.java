@@ -1,4 +1,4 @@
-package com.niko.littlepiggy.enemy;
+package com.niko.littlepiggy.enemy.farmer;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
