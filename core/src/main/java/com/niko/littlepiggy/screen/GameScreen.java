@@ -18,8 +18,8 @@ import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.player.PlayerStats;
 import com.niko.littlepiggy.item.Apple;
 import com.niko.littlepiggy.assets.GameAssets;
-import com.niko.littlepiggy.enemy.Farmer;
-import com.niko.littlepiggy.enemy.Dog;
+import com.niko.littlepiggy.enemy.farmer.Farmer;
+import com.niko.littlepiggy.enemy.dog.Dog;
 import com.niko.littlepiggy.debug.DebugConfig;
 import com.niko.littlepiggy.debug.DebugOverlay;
 import com.niko.littlepiggy.Main;
@@ -31,6 +31,10 @@ import com.niko.littlepiggy.world.MapObjectSpawner;
 import com.niko.littlepiggy.world.TerrainCollisionFactory;
 import com.niko.littlepiggy.fx.ScreenShake;
 import com.niko.littlepiggy.fx.HitStop;
+import com.niko.littlepiggy.lighting.LightingManager;
+import com.niko.littlepiggy.world.LightObjectSpawner;
+
+import box2dLight.PointLight;
 
 public class GameScreen extends BaseScreen {
 
@@ -71,6 +75,10 @@ public class GameScreen extends BaseScreen {
 
     private final SpriteBatch batch;
 
+    private final LightingManager lighting;
+    private final Array<PointLight> lamps;
+    private final PointLight playerLight;
+
     public GameScreen(Main game, String mapName) {
         super();
         this.game = game;
@@ -88,6 +96,8 @@ public class GameScreen extends BaseScreen {
         TiledMap tiledMap = gameMap.getTiledMap();
 
         World world = physics.getWorld();
+
+        lighting = new LightingManager(world);
 
         player = new Player(physics.getWorld(), 3, 3, game.getAssets());
 
@@ -128,6 +138,18 @@ public class GameScreen extends BaseScreen {
         TerrainCollisionFactory.buildCollisions(
                 world,
                 tiledMap);
+
+        lamps = LightObjectSpawner.spawnLights(tiledMap, lighting);
+
+        /*
+         * Spelarens egen ljuskälla ("ficklampa"/glöd). Byt färg/radie
+         * fritt - se LightingManager.createLamp för vad parametrarna gör.
+         */
+        playerLight = lighting.createLamp(
+                player.getX(),
+                player.getY(),
+                4f,
+                new Color(1f, 0.85f, 0.6f, 1f));
 
         sky = game.getAssets().getTexture(GameAssets.SKY);
 
@@ -240,6 +262,9 @@ public class GameScreen extends BaseScreen {
         for (Farmer farmer : farmers) {
             farmer.render(batch);
         }
+        for (Dog dog : dogs) {
+            dog.render(batch);
+        }
         for (Apple apple : apples) {
             apple.render(batch);
         }
@@ -249,9 +274,13 @@ public class GameScreen extends BaseScreen {
 
         batch.end();
 
+        playerLight.setPosition(player.getX(), player.getY());
+        lighting.update(camera);
+
         healthBarRenderer.render(
                 player.getHealth(),
-                player.getMaxHealth());
+                player.getMaxHealth(),
+                rawDelta);
 
         if (debugOverlay != null) {
             debugOverlay.update(rawDelta);
@@ -274,6 +303,10 @@ public class GameScreen extends BaseScreen {
                     farmer.update(
                             delta,
                             player.getPosition()));
+        }
+
+        for (Dog dog : dogs) {
+            dog.update(delta, player.getPosition());
         }
 
         player.update(delta);
@@ -340,6 +373,7 @@ public class GameScreen extends BaseScreen {
         physics.dispose();
         projectileRenderer.dispose();
         healthBarRenderer.dispose();
+        lighting.dispose();
         if (debugOverlay != null)
             debugOverlay.dispose();
     }
