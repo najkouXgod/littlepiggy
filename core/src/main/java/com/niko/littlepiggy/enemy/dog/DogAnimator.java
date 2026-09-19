@@ -1,47 +1,123 @@
 package com.niko.littlepiggy.enemy.dog;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.niko.littlepiggy.assets.GameAssets;
 import com.niko.littlepiggy.fx.HitFlash;
 
 public class DogAnimator {
 
-    private static final float BASE_WIDTH = 1.1f;
-    private static final float BASE_HEIGHT = 0.9f;
+    private enum State {
+        IDLE,
+        RUNNING,
+        ATTACKING
+    }
+
+    private static final float WIDTH = 1.1f;
+    private static final float HEIGHT = 0.9f;
+
+    private static final float IDLE_FRAME_TIME = 0.16f;
+    private static final float RUN_FRAME_TIME = 0.08f;
 
     /*
-     * Windup: sprite krymper ihop lite (som att den samlar kraft).
-     * Lunge: sprite sträcks ut i rörelseriktningen (fartkänsla).
-     * Rent visuellt lapptäcke tills det finns en riktig dog-animation -
-     * byt gärna ut mot faktiska frames senare, samma mönster som
-     * PlayerAnimator/FarmerAnimator använder med assets.getRowFrames(...).
+     * AI:
+     *
+     * windup = 0.35
+     * lunge = 0.20
+     *
+     * Totalt ungefär 0.55 sek.
+     *
+     * 5 frames * 0.11 = 0.55 sek.
      */
-    private static final float WINDUP_SCALE = 0.85f;
-    private static final float LUNGE_STRETCH_X = 1.3f;
-    private static final float LUNGE_SQUASH_Y = 0.8f;
+    private static final float ATTACK_FRAME_TIME = 0.11f;
+
+    private final Animation<TextureRegion> idleAnimation;
+    private final Animation<TextureRegion> runAnimation;
+    private final Animation<TextureRegion> attackAnimation;
 
     private final Sprite sprite;
+
     private final HitFlash hitFlash = new HitFlash();
+
+    private State currentState = State.IDLE;
+
+    private float stateTime;
+
+    private boolean attackActive;
 
     public DogAnimator(GameAssets assets) {
 
         /*
-         * PLACEHOLDER: återanvänder farmer-texturen tonad brun
-         * tills det finns en egen dog-sprite. Byt GameAssets.DOG_IDLE
-         * till din egna fil när den är på plats, och ta bort
-         * sprite.setColor-raden nedan.
+         * Row 0:
+         * idle
          */
-        sprite = new Sprite(
-                assets.getTexture(
-                        GameAssets.DOG_IDLE));
+        TextureRegion[] idleFrames = assets.getRowFrames(
+                GameAssets.DOG_SHEET,
+                0,
+                5,
+                64,
+                64);
 
-        sprite.setColor(
-                new Color(0.55f, 0.35f, 0.22f, 1f));
+        idleAnimation = new Animation<>(
+                IDLE_FRAME_TIME,
+                idleFrames);
 
-        sprite.setSize(BASE_WIDTH, BASE_HEIGHT);
+        idleAnimation.setPlayMode(
+                Animation.PlayMode.LOOP);
+
+        /*
+         * Row 1:
+         * running / chasing
+         */
+        TextureRegion[] runFrames = assets.getRowFrames(
+                GameAssets.DOG_SHEET,
+                1,
+                5,
+                64,
+                64);
+
+        runAnimation = new Animation<>(
+                RUN_FRAME_TIME,
+                runFrames);
+
+        runAnimation.setPlayMode(
+                Animation.PlayMode.LOOP);
+
+        /*
+         * Row 2:
+         * windup + lunge + recovery
+         */
+        TextureRegion[] attackFrames = assets.getRowFrames(
+                GameAssets.DOG_SHEET,
+                2,
+                5,
+                64,
+                64);
+
+        attackAnimation = new Animation<>(
+                ATTACK_FRAME_TIME,
+                attackFrames);
+
+        attackAnimation.setPlayMode(
+                Animation.PlayMode.NORMAL);
+
+        sprite = new Sprite(idleFrames[0]);
+
+        sprite.setSize(
+                WIDTH,
+                HEIGHT);
+    }
+
+    public void startAttack() {
+
+        attackActive = true;
+
+        currentState = State.ATTACKING;
+
+        stateTime = 0f;
     }
 
     public void update(
@@ -49,32 +125,90 @@ public class DogAnimator {
             float x,
             float y,
             boolean facingLeft,
-            boolean windingUp,
-            boolean lunging) {
-
-        sprite.setFlip(!facingLeft, false);
-
-        float width = BASE_WIDTH;
-        float height = BASE_HEIGHT;
-
-        if (windingUp) {
-
-            width *= WINDUP_SCALE;
-            height *= WINDUP_SCALE;
-
-        } else if (lunging) {
-
-            width *= LUNGE_STRETCH_X;
-            height *= LUNGE_SQUASH_Y;
-        }
-
-        sprite.setSize(width, height);
-
-        sprite.setPosition(
-                x - sprite.getWidth() / 2f,
-                y - sprite.getHeight() / 2f);
+            boolean chasing) {
 
         hitFlash.update(delta);
+
+        /*
+         * Attackanimationen får spela klart.
+         */
+        if (attackActive
+                && attackAnimation
+                        .isAnimationFinished(stateTime)) {
+
+            attackActive = false;
+        }
+
+        State newState;
+
+        if (attackActive) {
+
+            newState = State.ATTACKING;
+
+        } else if (chasing) {
+
+            newState = State.RUNNING;
+
+        } else {
+
+            newState = State.IDLE;
+        }
+
+        /*
+         * Nollställ animationstid när state byts.
+         */
+        if (newState != currentState) {
+
+            currentState = newState;
+
+            stateTime = 0f;
+        }
+
+        stateTime += delta;
+
+        TextureRegion frame;
+
+        switch (currentState) {
+
+            case RUNNING:
+
+                frame = runAnimation.getKeyFrame(
+                        stateTime);
+
+                break;
+
+            case ATTACKING:
+
+                frame = attackAnimation.getKeyFrame(
+                        stateTime);
+
+                break;
+
+            case IDLE:
+            default:
+
+                frame = idleAnimation.getKeyFrame(
+                        stateTime);
+
+                break;
+        }
+
+        sprite.setRegion(frame);
+
+        /*
+         * Sheetet är ritat mot höger.
+         */
+        sprite.setFlip(
+                facingLeft,
+                false);
+
+        sprite.setSize(
+                WIDTH,
+                HEIGHT);
+
+        sprite.setPosition(
+                x - WIDTH / 2f,
+                y - HEIGHT / 2f);
     }
 
     public void triggerFlash() {
@@ -82,8 +216,11 @@ public class DogAnimator {
     }
 
     public void render(SpriteBatch batch) {
+
         hitFlash.begin(batch);
+
         sprite.draw(batch);
+
         hitFlash.end(batch);
     }
 }

@@ -25,6 +25,7 @@ public class DogAI {
     private State state = State.IDLE;
     private float stateTime;
 
+    private boolean attackStartedThisFrame;
     private boolean facingLeft;
     private float lockedDirectionX;
 
@@ -43,6 +44,8 @@ public class DogAI {
     public void update(
             float delta,
             Vector2 playerPosition) {
+
+        attackStartedThisFrame = false;
 
         Vector2 myPosition = physics.getPosition();
 
@@ -105,13 +108,17 @@ public class DogAI {
         }
 
         float distance = myPosition.dst(playerPosition);
-
         if (distance <= LUNGE_TRIGGER_RANGE) {
 
             state = State.WINDUP;
             stateTime = 0f;
+
             lockedDirectionX = directionX;
+
+            attackStartedThisFrame = true;
+
             physics.stopHorizontal();
+
             return;
         }
 
@@ -174,5 +181,13 @@ public class DogAI {
 
     public boolean isLunging() {
         return state == State.LUNGE;
+    }
+
+    public boolean isChasing() {
+        return state == State.CHASE;
+    }
+
+    public boolean didStartAttack() {
+        return attackStartedThisFrame;
     }
 }

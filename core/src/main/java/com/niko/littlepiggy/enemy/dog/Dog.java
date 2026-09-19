@@ -35,15 +35,20 @@ public class Dog implements Damageable {
             float delta,
             Vector2 playerPosition) {
 
-        ai.update(delta, playerPosition);
+        ai.update(
+                delta,
+                playerPosition);
+
+        if (ai.didStartAttack()) {
+            animator.startAttack();
+        }
 
         animator.update(
                 delta,
                 physics.getX(),
                 physics.getY(),
                 ai.isFacingLeft(),
-                ai.isWindingUp(),
-                ai.isLunging());
+                ai.isChasing());
     }
 
     public void render(SpriteBatch batch) {

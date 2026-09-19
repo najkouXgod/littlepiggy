@@ -23,13 +23,7 @@ public class GameAssets {
 
     public static final String FARMER_SHOOTING = "farmer/shooting.png";
 
-    /*
-     * PLACEHOLDER: pekar just nu på samma fil som FARMER_IDLE
-     * eftersom det inte finns en egen dog-sprite än. Byt till en
-     * riktig fil (och lägg till en manager.load(...)-rad i loadAll()
-     * om det blir en annan fil) när konsten finns på plats.
-     */
-    public static final String DOG_IDLE = FARMER_IDLE;
+    public static final String DOG_SHEET = "dog/dogsheet.png";
 
     public static final String SFX_DASH_SWIPE = "sounds/swipe.wav";
     public static final String SFX_DASH_HIT = "sounds/punch.wav";
@@ -57,6 +51,7 @@ public class GameAssets {
 
         manager.load(FARMER_IDLE, Texture.class);
         manager.load(FARMER_SHOOTING, Texture.class);
+        manager.load(DOG_SHEET, Texture.class);
 
         manager.load(SKY, Texture.class);
         manager.load(GAME_OVER, Texture.class);
