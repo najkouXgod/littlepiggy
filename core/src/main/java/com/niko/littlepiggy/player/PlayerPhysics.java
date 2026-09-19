@@ -5,26 +5,16 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class PlayerPhysics {
 
-    /*
-     * Kroppen byggs som en kapsel:
-     */
     private static final float BODY_RADIUS = 0.20f;
     private static final float BODY_HALF_LENGTH = 0.22f;
     private static final float BODY_OFFSET_Y = 0f;
 
-    /*
-     * Två små foot sensors.
-     */
     private static final float FOOT_X = 0.28f;
     private static final float FOOT_Y = -0.3f;
     private static final float FOOT_RADIUS = 0.055f;
 
     private final Body body;
 
-    /*
-     * Två foot sensors kan samtidigt röra flera fixtures,
-     * därför använder vi en counter istället för boolean.
-     */
     private int groundContacts;
 
     public PlayerPhysics(World world, float x, float y) {
@@ -48,9 +38,6 @@ public class PlayerPhysics {
 
     private void createMainCollider(Body body) {
 
-        /*
-         * Mitten av kapseln.
-         */
         PolygonShape centerShape = new PolygonShape();
 
         centerShape.setAsBox(
@@ -68,17 +55,11 @@ public class PlayerPhysics {
 
         centerShape.dispose();
 
-        /*
-         * Vänster rundning.
-         */
         createBodyCircle(
                 body,
                 -BODY_HALF_LENGTH,
                 BODY_OFFSET_Y);
 
-        /*
-         * Höger rundning.
-         */
         createBodyCircle(
                 body,
                 BODY_HALF_LENGTH,
@@ -99,11 +80,6 @@ public class PlayerPhysics {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-
-        /*
-         * Mitten-fixturen står för massan.
-         * Cirklarna används främst för collisionformen.
-         */
         fixtureDef.density = 0f;
         fixtureDef.friction = 0f;
 
@@ -141,10 +117,6 @@ public class PlayerPhysics {
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
 
-        /*
-         * Vi behåller "foot" just nu så din nuvarande
-         * GameContactListener fortsätter fungera.
-         */
         body.createFixture(fixtureDef)
                 .setUserData("foot");
 
@@ -222,6 +194,7 @@ public class PlayerPhysics {
     }
 
     public void setHorizontalVelocity(float velocity) {
+
         body.setLinearVelocity(
                 velocity,
                 body.getLinearVelocity().y);
@@ -229,15 +202,6 @@ public class PlayerPhysics {
 
     public void jump(float xImpulse, float yImpulse) {
 
-        /*
-         * På en ramp kan Box2D ge kroppen positiv Y-hastighet medan den
-         * rör sig uppför sluttningen. Om hoppimpulsen läggs ovanpå den
-         * hastigheten blir ett vanligt hopp oproportionerligt högt.
-         *
-         * Nollställ bara Y precis när ett VANLIGT hopp startar. Dashen
-         * använder inte denna metod, så dash -> ramp kan fortfarande
-         * omvandla den höga X-farten till en kraftig ramp-launch.
-         */
         body.setLinearVelocity(
                 body.getLinearVelocity().x,
                 0f);
@@ -248,13 +212,8 @@ public class PlayerPhysics {
                 true);
     }
 
-    public void doubleJump(float xImpulse, float yImpulse) {
+    public void backflipJump(float xImpulse, float yImpulse) {
 
-        /*
-         * Gör dubbelhoppet konsekvent oavsett om spelaren
-         * fortfarande är på väg upp eller redan har börjat falla.
-         * Horisontell fart behålls.
-         */
         body.setLinearVelocity(
                 body.getLinearVelocity().x,
                 0f);
@@ -282,6 +241,8 @@ public class PlayerPhysics {
     }
 
     public void endGroundContact() {
-        groundContacts = Math.max(0, groundContacts - 1);
+        groundContacts = Math.max(
+                0,
+                groundContacts - 1);
     }
 }

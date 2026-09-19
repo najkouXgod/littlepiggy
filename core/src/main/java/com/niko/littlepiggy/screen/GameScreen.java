@@ -77,7 +77,6 @@ public class GameScreen extends BaseScreen {
 
     private final LightingManager lighting;
     private final Array<PointLight> lamps;
-    private final PointLight playerLight;
 
     public GameScreen(Main game, String mapName) {
         super();
@@ -140,16 +139,6 @@ public class GameScreen extends BaseScreen {
                 tiledMap);
 
         lamps = LightObjectSpawner.spawnLights(tiledMap, lighting);
-
-        /*
-         * Spelarens egen ljuskälla ("ficklampa"/glöd). Byt färg/radie
-         * fritt - se LightingManager.createLamp för vad parametrarna gör.
-         */
-        playerLight = lighting.createLamp(
-                player.getX(),
-                player.getY(),
-                4f,
-                new Color(1f, 0.85f, 0.6f, 1f));
 
         sky = game.getAssets().getTexture(GameAssets.SKY);
 
@@ -273,8 +262,6 @@ public class GameScreen extends BaseScreen {
         }
 
         batch.end();
-
-        playerLight.setPosition(player.getX(), player.getY());
         lighting.update(camera);
 
         healthBarRenderer.render(

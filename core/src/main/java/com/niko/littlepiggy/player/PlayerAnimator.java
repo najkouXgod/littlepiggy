@@ -15,16 +15,16 @@ public class PlayerAnimator {
         RUNNING,
         CHARGING,
         DASHING,
-        DOUBLE_JUMP
+        BACKFLIP
     }
 
-    private static final float DOUBLE_JUMP_FRAME_TIME = 0.055f;
+    private static final float BACKFLIP_FRAME_TIME = 0.055f;
 
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> runningAnimation;
     private final Animation<TextureRegion> chargeAnimation;
     private final Animation<TextureRegion> dashAnimation;
-    private final Animation<TextureRegion> doubleJumpAnimation;
+    private final Animation<TextureRegion> backflipAnimation;
 
     private final Sprite sprite;
     private final HitFlash hitFlash = new HitFlash();
@@ -32,7 +32,9 @@ public class PlayerAnimator {
     private AnimationState currentState = AnimationState.IDLE;
 
     private float stateTime;
-    private boolean doubleJumpAnimationActive;
+
+    private boolean backflipAnimationActive;
+    private boolean backflipWasAirborne;
 
     public PlayerAnimator(GameAssets assets) {
 
@@ -64,9 +66,6 @@ public class PlayerAnimator {
         runningAnimation.setPlayMode(
                 Animation.PlayMode.LOOP);
 
-        /*
-         * Row 2, columns 0-3
-         */
         TextureRegion[] chargeFrames = assets.getRowFrames(
                 GameAssets.PIG_SHEET,
                 2,
@@ -79,17 +78,9 @@ public class PlayerAnimator {
                 0.10f,
                 chargeFrames);
 
-        /*
-         * Spela charge-animationen en gång.
-         * Om UP fortsätter hållas stannar den
-         * på sista charge-framen.
-         */
         chargeAnimation.setPlayMode(
                 Animation.PlayMode.NORMAL);
 
-        /*
-         * Row 2, columns 4-11
-         */
         TextureRegion[] dashFrames = assets.getRowFrames(
                 GameAssets.PIG_SHEET,
                 2,
@@ -105,11 +96,7 @@ public class PlayerAnimator {
         dashAnimation.setPlayMode(
                 Animation.PlayMode.NORMAL);
 
-        /*
-         * Fjärde raden i spritesheeten (row index 3).
-         * 11 frames à 64x64: columns 0-10.
-         */
-        TextureRegion[] doubleJumpFrames = assets.getRowFrames(
+        TextureRegion[] backflipFrames = assets.getRowFrames(
                 GameAssets.PIG_SHEET,
                 3,
                 0,
@@ -117,11 +104,11 @@ public class PlayerAnimator {
                 64,
                 64);
 
-        doubleJumpAnimation = new Animation<>(
-                DOUBLE_JUMP_FRAME_TIME,
-                doubleJumpFrames);
+        backflipAnimation = new Animation<>(
+                BACKFLIP_FRAME_TIME,
+                backflipFrames);
 
-        doubleJumpAnimation.setPlayMode(
+        backflipAnimation.setPlayMode(
                 Animation.PlayMode.NORMAL);
 
         sprite = new Sprite(idleFrames[0]);
@@ -131,13 +118,12 @@ public class PlayerAnimator {
                 1f);
     }
 
-    /**
-     * Startar bakåtvolten från frame 0.
-     * Det här är ett event, inte ett permanent movement-state.
-     */
-    public void startDoubleJump() {
-        doubleJumpAnimationActive = true;
-        currentState = AnimationState.DOUBLE_JUMP;
+    public void startBackflip() {
+
+        backflipAnimationActive = true;
+        backflipWasAirborne = false;
+
+        currentState = AnimationState.BACKFLIP;
         stateTime = 0f;
     }
 
@@ -153,25 +139,35 @@ public class PlayerAnimator {
 
         hitFlash.update(delta);
 
-        /*
-         * Om vi landar innan volten hunnit bli klar avbryts den,
-         * så att grisen inte fortsätter snurra på marken.
-         */
-        if (doubleJumpAnimationActive && grounded) {
-            doubleJumpAnimationActive = false;
+        if (backflipAnimationActive && !grounded) {
+            backflipWasAirborne = true;
         }
 
-        if (doubleJumpAnimationActive
-                && doubleJumpAnimation.isAnimationFinished(stateTime)) {
+        /*
+         * Avbryt först när spelaren faktiskt varit i luften
+         * och sedan landar igen.
+         *
+         * Det gör att CTRL från marken inte stoppar
+         * animationen direkt på första framen.
+         */
+        if (backflipAnimationActive
+                && backflipWasAirborne
+                && grounded) {
 
-            doubleJumpAnimationActive = false;
+            backflipAnimationActive = false;
+        }
+
+        if (backflipAnimationActive
+                && backflipAnimation.isAnimationFinished(stateTime)) {
+
+            backflipAnimationActive = false;
         }
 
         AnimationState newState;
 
-        if (doubleJumpAnimationActive) {
+        if (backflipAnimationActive) {
 
-            newState = AnimationState.DOUBLE_JUMP;
+            newState = AnimationState.BACKFLIP;
 
         } else if (charging) {
 
@@ -190,9 +186,6 @@ public class PlayerAnimator {
             newState = AnimationState.IDLE;
         }
 
-        /*
-         * Ny animation börjar från frame 0.
-         */
         if (newState != currentState) {
 
             currentState = newState;
@@ -207,37 +200,27 @@ public class PlayerAnimator {
 
             case RUNNING:
 
-                frame = runningAnimation
-                        .getKeyFrame(stateTime);
-
+                frame = runningAnimation.getKeyFrame(stateTime);
                 break;
 
             case CHARGING:
 
-                frame = chargeAnimation
-                        .getKeyFrame(stateTime);
-
+                frame = chargeAnimation.getKeyFrame(stateTime);
                 break;
 
             case DASHING:
 
-                frame = dashAnimation
-                        .getKeyFrame(stateTime);
-
+                frame = dashAnimation.getKeyFrame(stateTime);
                 break;
 
-            case DOUBLE_JUMP:
+            case BACKFLIP:
 
-                frame = doubleJumpAnimation
-                        .getKeyFrame(stateTime);
-
+                frame = backflipAnimation.getKeyFrame(stateTime);
                 break;
 
             default:
 
-                frame = idleAnimation
-                        .getKeyFrame(stateTime);
-
+                frame = idleAnimation.getKeyFrame(stateTime);
                 break;
         }
 
@@ -257,6 +240,7 @@ public class PlayerAnimator {
     }
 
     public void render(SpriteBatch batch) {
+
         hitFlash.begin(batch);
         sprite.draw(batch);
         hitFlash.end(batch);

@@ -53,8 +53,8 @@ public class Player implements Damageable {
                 delta,
                 combat.blocksMovement());
 
-        if (controller.didStartDoubleJump()) {
-            animator.startDoubleJump();
+        if (controller.didStartBackflip()) {
+            animator.startBackflip();
             combat.startBackflipAttack(
                     controller.isFacingLeft());
         }

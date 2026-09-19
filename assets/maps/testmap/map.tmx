@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="18" nextobjectid="170">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="170">
  <tileset firstgid="1" source="terrain.tsx"/>
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="11" name="Ground" width="60" height="25">
@@ -14,7 +14,7 @@
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt08EKgCAQRdH3Ac22ltr//2QJ7RXBGXLuAcnlu2ASAAD4O4se4MzUbz48hjgx9ZtP7dNsGm/O9vYbmnOgGUCUTP8irXvK0HpFD1isvKd+9/a9w5bMeQCrBgHT
+   eJzt0zEKwCAQRNG5wNaWxvtfUoUUKUNAlzj/gbjlfkEJAAD8XWQvsFnIqznk1Rx63+zyJk80e6AZQBanv0jrmRxaS/YCi9Vxrnued0vb5JsOF1EBjw==
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
@@ -25,6 +25,11 @@
  <layer id="16" name="Goal" width="60" height="25">
   <data encoding="base64" compression="zlib">
    eJztzqkRADAMwLDQ4uJ0/zE7RR4gDeBzRJ1T2N7oTg80y+kBAAAA1nvTAwDQ6APEDwBY
+  </data>
+ </layer>
+ <layer id="18" name="Dogs" width="60" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzt1TERAAAIAzHM4t8CEhiBI1HQ5a8RAABclNMDAOAh/wtzuv70yQYF9PcBlQ==
   </data>
  </layer>
 </map>

@@ -2,10 +2,11 @@ package com.niko.littlepiggy.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-
 import com.niko.littlepiggy.debug.DebugConfig;
 
 public class PlayerController {
+
+    private static final float BACKFLIP_COOLDOWN = 1.0f;
 
     private final PlayerPhysics physics;
 
@@ -13,34 +14,35 @@ public class PlayerController {
     private boolean facingLeft;
 
     private boolean jumpWasPressed;
+    private boolean backflipWasPressed;
     private boolean dashChargeHeld;
+
+    private boolean normalJumpUsed;
     private boolean wasGrounded;
 
-    /*
-     * Ett luft-hopp finns tillgängligt tills det används.
-     * Det betyder att spelaren kan använda bakåtvolten både
-     * efter ett vanligt hopp och efter att ha gått ut från en kant.
-     */
-    private boolean airJumpAvailable = true;
-    private boolean doubleJumpStartedThisFrame;
+    private boolean backflipStartedThisFrame;
+    private float backflipCooldownRemaining;
 
     public PlayerController(PlayerPhysics physics) {
         this.physics = physics;
     }
 
-    public void update(
-            float delta,
-            boolean movementBlocked) {
+    public void update(float delta, boolean movementBlocked) {
 
         moving = false;
-        doubleJumpStartedThisFrame = false;
+        backflipStartedThisFrame = false;
 
-        dashChargeHeld = Gdx.input.isKeyPressed(
-                Input.Keys.UP);
+        backflipCooldownRemaining = Math.max(
+                0f,
+                backflipCooldownRemaining - delta);
+
+        dashChargeHeld = Gdx.input.isKeyPressed(Input.Keys.UP);
 
         updateGroundedState();
+
         handleMovement(movementBlocked);
         handleJump(movementBlocked);
+        handleBackflip(movementBlocked);
     }
 
     private void updateGroundedState() {
@@ -48,19 +50,23 @@ public class PlayerController {
         boolean grounded = physics.isGrounded();
 
         /*
-         * När spelaren landar får den tillbaka sitt enda luft-hopp.
-         * Vi återställer det bara vid en faktisk landning, inte när
-         * spelaren lämnar marken.
+         * Återställ vanligt hopp endast när spelaren
+         * faktiskt LANDAR.
+         *
+         * Inte varje frame som grounded är true.
+         *
+         * Detta förhindrar att foot-sensorn fortfarande
+         * räknas som grounded precis efter ett hopp och
+         * råkar ge spelaren ett extra SPACE-hopp.
          */
         if (grounded && !wasGrounded) {
-            airJumpAvailable = true;
+            normalJumpUsed = false;
         }
 
         wasGrounded = grounded;
     }
 
-    private void handleMovement(
-            boolean movementBlocked) {
+    private void handleMovement(boolean movementBlocked) {
 
         if (movementBlocked) {
             return;
@@ -68,69 +74,71 @@ public class PlayerController {
 
         float velocityX = 0f;
 
-        if (Gdx.input.isKeyPressed(
-                Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 
             velocityX = DebugConfig.SPEED;
             facingLeft = false;
             moving = true;
         }
 
-        if (Gdx.input.isKeyPressed(
-                Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 
             velocityX = -DebugConfig.SPEED;
             facingLeft = true;
             moving = true;
         }
 
-        physics.setHorizontalVelocity(
-                velocityX);
+        physics.setHorizontalVelocity(velocityX);
     }
 
-    private void handleJump(
-            boolean movementBlocked) {
+    private void handleJump(boolean movementBlocked) {
 
-        boolean jumpPressed = Gdx.input.isKeyPressed(
-                Input.Keys.SPACE);
+        boolean jumpPressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
 
-        /*
-         * Hoppa bara när SPACE precis tryckts,
-         * inte varje frame medan den hålls.
-         */
         if (jumpPressed
                 && !jumpWasPressed
-                && !movementBlocked) {
+                && !movementBlocked
+                && !normalJumpUsed) {
 
-            if (physics.isGrounded()) {
+            physics.jump(
+                    0f,
+                    DebugConfig.JUMP_MINPOWER);
 
-                physics.jump(
-                        0f,
-                        DebugConfig.JUMP_MINPOWER);
-
-                /*
-                 * Det vanliga markhoppet förbrukar inte luft-hoppet.
-                 * Därför finns bakåtvolten fortfarande kvar i luften.
-                 */
-
-            } else if (airJumpAvailable) {
-
-                /*
-                 * Dubbelhoppet nollställer vertikal fart först.
-                 * Annars blir hoppet mycket starkare om SPACE
-                 * trycks medan grisen fortfarande rör sig uppåt,
-                 * och mycket svagare om den redan faller.
-                 */
-                physics.doubleJump(
-                        0f,
-                        DebugConfig.DOUBLE_JUMP_POWER);
-
-                airJumpAvailable = false;
-                doubleJumpStartedThisFrame = true;
-            }
+            /*
+             * Vanligt hopp är nu förbrukat tills
+             * spelaren faktiskt landar igen.
+             */
+            normalJumpUsed = true;
         }
 
         jumpWasPressed = jumpPressed;
+    }
+
+    private void handleBackflip(boolean movementBlocked) {
+
+        boolean backflipPressed = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
+
+        if (backflipPressed
+                && !backflipWasPressed
+                && !movementBlocked
+                && backflipCooldownRemaining <= 0f) {
+
+            /*
+             * Bakåtvolt får göras när som helst:
+             * på marken eller i luften.
+             *
+             * Den påverkar inte normalJumpUsed.
+             */
+            physics.backflipJump(
+                    0f,
+                    DebugConfig.BACKFLIP_JUMP_POWER);
+
+            backflipStartedThisFrame = true;
+            backflipCooldownRemaining = BACKFLIP_COOLDOWN;
+        }
+
+        backflipWasPressed = backflipPressed;
     }
 
     public boolean isMoving() {
@@ -145,11 +153,7 @@ public class PlayerController {
         return dashChargeHeld;
     }
 
-    /**
-     * Ett one-frame-event som Player kan skicka vidare till animatorn.
-     * Själva animationslängden ägs av PlayerAnimator, inte controllern.
-     */
-    public boolean didStartDoubleJump() {
-        return doubleJumpStartedThisFrame;
+    public boolean didStartBackflip() {
+        return backflipStartedThisFrame;
     }
 }
