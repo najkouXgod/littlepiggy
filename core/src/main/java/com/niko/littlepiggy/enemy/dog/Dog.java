@@ -12,6 +12,7 @@ public class Dog implements Damageable {
 
     private static final float MAX_HEALTH = 35f;
 
+    private final GameAssets assets;
     private final DogPhysics physics;
     private final DogAI ai;
     private final DogAnimator animator;
@@ -23,6 +24,8 @@ public class Dog implements Damageable {
             GameAssets assets,
             float x,
             float y) {
+
+        this.assets = assets;
 
         physics = new DogPhysics(world, x, y);
         physics.setOwner(this);
@@ -40,7 +43,11 @@ public class Dog implements Damageable {
                 playerPosition);
 
         if (ai.didStartAttack()) {
+
             animator.startAttack();
+
+            assets.playSound(
+                    GameAssets.SFX_DOG_BARK);
         }
 
         animator.update(

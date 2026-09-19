@@ -30,15 +30,18 @@ public class GameAssets {
     public static final String SFX_BACKFLIP_HIT = "sounds/punch_2.wav";
     public static final String SFX_FARMER_SHOT = "sounds/shot_muffled.wav";
 
+    public static final String SFX_DOG_BARK = "sounds/bark.mp3";
+
     /*
      * Volym per ljud. shot_muffled och punch_2 är taget från paket
      * som ofta är inspelade högre än swipe/punch, så vi trimmar dem
      * lite i koden istället för att göra om filerna.
      */
-    private static final float VOLUME_DASH_SWIPE = 0.8f;
-    private static final float VOLUME_DASH_HIT = 1f;
-    private static final float VOLUME_BACKFLIP_HIT = 1f;
-    private static final float VOLUME_FARMER_SHOT = 0.6f;
+    private static final float VOLUME_DASH_SWIPE = 0.4f;
+    private static final float VOLUME_DASH_HIT = 0.6f;
+    private static final float VOLUME_BACKFLIP_HIT = 0.6f;
+    private static final float VOLUME_FARMER_SHOT = 0.5f;
+    private static final float VOLUME_DOG_BARK = 0.6f;
 
     public GameAssets() {
         manager = new AssetManager();
@@ -61,6 +64,8 @@ public class GameAssets {
         manager.load(SFX_DASH_HIT, Sound.class);
         manager.load(SFX_BACKFLIP_HIT, Sound.class);
         manager.load(SFX_FARMER_SHOT, Sound.class);
+
+        manager.load(SFX_DOG_BARK, Sound.class);
     }
 
     public void finishLoading() {
@@ -103,6 +108,9 @@ public class GameAssets {
 
         if (SFX_FARMER_SHOT.equals(path)) {
             return VOLUME_FARMER_SHOT;
+        }
+        if (SFX_DOG_BARK.equals(path)) {
+            return VOLUME_DOG_BARK;
         }
 
         return 1f;
