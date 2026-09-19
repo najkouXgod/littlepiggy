@@ -20,7 +20,7 @@ public class GameAssets {
     public static final String ABILITIES = "ui/abilities.png";
 
     public static final String FARMER_IDLE = "farmer/farmer.png";
-
+    public static final String FARMER_AIMING = "farmer/farmeraiming.png";
     public static final String FARMER_SHOOTING = "farmer/shooting.png";
 
     public static final String DOG_SHEET = "dog/dogsheet.png";
@@ -53,6 +53,7 @@ public class GameAssets {
         manager.load(ABILITIES, Texture.class);
 
         manager.load(FARMER_IDLE, Texture.class);
+        manager.load(FARMER_AIMING, Texture.class);
         manager.load(FARMER_SHOOTING, Texture.class);
         manager.load(DOG_SHEET, Texture.class);
 

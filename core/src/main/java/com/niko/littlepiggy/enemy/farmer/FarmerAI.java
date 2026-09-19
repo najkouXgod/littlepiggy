@@ -9,28 +9,40 @@ import com.niko.littlepiggy.projectile.Pellet;
 
 public class FarmerAI {
 
+    private enum State {
+        IDLE,
+        AIMING
+    }
+
     private static final int PELLET_COUNT = 4;
 
     private static final float SPREAD_DEGREES = 8f;
 
     private static final float SHOOT_INTERVAL = 3.5f;
 
+    /*
+     * 3 aiming-frames * 0.12 sek.
+     */
+    private static final float AIM_TIME = 0.36f;
+
     private final FarmerPhysics physics;
     private final Farmer owner;
     private final GameAssets assets;
 
+    private State state = State.IDLE;
+
     private boolean facingLeft;
 
-    /*
-     * Counter istället för boolean eftersom Player
-     * har flera fixtures som kan vara inne i sensorn
-     * samtidigt.
-     */
     private int playerRangeContacts;
 
     private float shootCooldown;
+    private float aimTimer;
 
-    public FarmerAI(FarmerPhysics physics, Farmer owner, GameAssets assets) {
+    public FarmerAI(
+            FarmerPhysics physics,
+            Farmer owner,
+            GameAssets assets) {
+
         this.physics = physics;
         this.owner = owner;
         this.assets = assets;
@@ -46,19 +58,58 @@ public class FarmerAI {
             shootCooldown -= delta;
         }
 
-        boolean canShoot = isPlayerInRange()
+        boolean canSeePlayer = isPlayerInRange()
                 && physics.hasLineOfSight(
-                        playerPosition)
-                && shootCooldown <= 0f;
+                        playerPosition);
 
-        if (canShoot) {
+        /*
+         * AIMING
+         */
+        if (state == State.AIMING) {
 
-            shootCooldown = SHOOT_INTERVAL;
+            /*
+             * Om spelaren försvinner ur range eller
+             * bakom ett hinder avbryts siktandet.
+             */
+            if (!canSeePlayer) {
 
-            assets.playSound(GameAssets.SFX_FARMER_SHOT);
+                state = State.IDLE;
+                aimTimer = 0f;
 
-            return createPellets(
-                    playerPosition);
+                return null;
+            }
+
+            aimTimer += delta;
+
+            /*
+             * När aiming-animationen är klar
+             * avfyras skottet.
+             */
+            if (aimTimer >= AIM_TIME) {
+
+                state = State.IDLE;
+                aimTimer = 0f;
+
+                shootCooldown = SHOOT_INTERVAL;
+
+                assets.playSound(
+                        GameAssets.SFX_FARMER_SHOT);
+
+                return createPellets(
+                        playerPosition);
+            }
+
+            return null;
+        }
+
+        /*
+         * Börja sikta.
+         */
+        if (canSeePlayer
+                && shootCooldown <= 0f) {
+
+            state = State.AIMING;
+            aimTimer = 0f;
         }
 
         return null;
@@ -123,5 +174,9 @@ public class FarmerAI {
 
     public boolean isFacingLeft() {
         return facingLeft;
+    }
+
+    public boolean isAiming() {
+        return state == State.AIMING;
     }
 }

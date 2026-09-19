@@ -2,34 +2,34 @@
 <map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="170">
  <tileset firstgid="1" source="terrain.tsx"/>
  <tileset firstgid="101" source="Farmers.tsx"/>
+ <layer id="16" name="Goal" width="60" height="25">
+  <data encoding="base64" compression="zlib">
+   eJzt1KERACAMBMFYsGCh/zJJCwiI2Z15f+ojAAAAAN7Y1QHwUMv16oiPRm5WR3y0wodx7wAzdgCU
+  </data>
+ </layer>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztl90KgCAMRtfPhVC3dVvv/5T1QdEyJSUq3Twg/aixo8IWUaEQTmU1iZi/A/gADY7aMFT2Vbu/JDSf51jv/pUo/gc1Rr22ls51x0jXWkTqGoDZ8Q5rINnZRXHWgVZn+79Ka/4DWt1Tr3s6Os4pz824b7bnEHJxHCLmpezkA67ccXrwrbf9EasvL+x9d2Ni9vNr7JoWsbpqXd53N0YKOJczu+bIAgYnA34=
+   eJztzzsKwCAQBUBjLLyF3v+UsRTRSlMIM/Bwi/1gCAAAAAAA5KHOq8YNz5Cd+djydkmT/bNbf/zrhNJSu/dGH+LcALw=
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt2LEOABAMRVGLGsX//ywVtpokKtyTvDAYukjThoAdaZzRtYpzSou0ZO9CAAAAADznl7lq0rlKvIsA0PEXfel+7aceoPu11W5NjFhvrDvuUAHYqwCp
+   eJztzzEKgEAMBMBYiIWCWHj/f6onKByxFTxkBrZI0mQjAAAAAIDezWlePvnifVPNmHZn1z3tSvyj81azNvMQz663ct3b0LcDzT8Atg==
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0zEKwCAQRNG5wNaWxvtfUoUUKUNAlzj/gbjlfkEJAAD8XWQvsFnIqznk1Rx63+zyJk80e6AZQBanv0jrmRxaS/YCi9Vxrnued0vb5JsOF1EBjw==
+   eJztzrEJACAQA0AXsLZU919SBQtrQYTnDkJSJiUAAAAAgBjykYjK7wOP1Zm29+r+7cmdAfmkAL8=
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1TEKACAMA0A/2/9/wb0gLoJG7pZ2yJCh0DEA/lO3C8BB7pmuFjsApEv8a4mdIUW1ucvBCyao+AOO
-  </data>
- </layer>
- <layer id="16" name="Goal" width="60" height="25">
-  <data encoding="base64" compression="zlib">
-   eJztzqkRADAMwLDQ4uJ0/zE7RR4gDeBzRJ1T2N7oTg80y+kBAAAA1nvTAwDQ6APEDwBY
+   eJztzjENAAAIA7Bd+JeMjCXQKmgCAAAAAHw17QAcsitQAAc=
   </data>
  </layer>
  <layer id="18" name="Dogs" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1TERAAAIAzHM4t8CEhiBI1HQ5a8RAABclNMDAOAh/wtzuv70yQYF9PcBlQ==
+   eJztzjENAAAIA7Bd+JeMjCXQKmgCAAAAAFww7QA8tyyIAAc=
   </data>
  </layer>
 </map>

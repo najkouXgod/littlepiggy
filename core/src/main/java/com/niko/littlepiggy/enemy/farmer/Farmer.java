@@ -52,10 +52,12 @@ public class Farmer implements Damageable {
                 playerPosition);
 
         /*
-         * FarmerAI returnerar pellets exakt när
-         * bonden avfyrar sitt gevär.
+         * Pellets skapas exakt den frame som
+         * aiming är färdig och geväret avfyras.
          */
-        if (pellets != null && pellets.size > 0) {
+        if (pellets != null
+                && pellets.size > 0) {
+
             animator.startShooting();
         }
 
@@ -63,7 +65,8 @@ public class Farmer implements Damageable {
                 delta,
                 physics.getX(),
                 physics.getY(),
-                ai.isFacingLeft());
+                ai.isFacingLeft(),
+                ai.isAiming());
 
         return pellets;
     }
