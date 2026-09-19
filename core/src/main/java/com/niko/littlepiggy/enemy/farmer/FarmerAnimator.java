@@ -1,5 +1,6 @@
 package com.niko.littlepiggy.enemy.farmer;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -8,16 +9,37 @@ import com.niko.littlepiggy.fx.HitFlash;
 
 public class FarmerAnimator {
 
+    private static final float SHOOTING_TIME = 0.25f;
+
+    private final Texture idleTexture;
+    private final Texture shootingTexture;
+
     private final Sprite sprite;
+
     private final HitFlash hitFlash = new HitFlash();
+
+    private float shootingTimer;
 
     public FarmerAnimator(GameAssets assets) {
 
-        sprite = new Sprite(
-                assets.getTexture(
-                        GameAssets.FARMER_IDLE));
+        idleTexture = assets.getTexture(
+                GameAssets.FARMER_IDLE);
 
-        sprite.setSize(1.5f, 1.5f);
+        shootingTexture = assets.getTexture(
+                GameAssets.FARMER_SHOOTING);
+
+        sprite = new Sprite(idleTexture);
+
+        sprite.setSize(
+                1.5f,
+                1.5f);
+    }
+
+    public void startShooting() {
+
+        shootingTimer = SHOOTING_TIME;
+
+        sprite.setRegion(shootingTexture);
     }
 
     public void update(
@@ -26,13 +48,17 @@ public class FarmerAnimator {
             float y,
             boolean facingLeft) {
 
-        /*
-         * Behåller beteendet från din nuvarande
-         * Farmer.java.
-         *
-         * Om farmer.png i grunden är ritad åt andra
-         * hållet kan denna senare bytas till facingLeft.
-         */
+        if (shootingTimer > 0f) {
+
+            shootingTimer -= delta;
+
+            sprite.setRegion(shootingTexture);
+
+        } else {
+
+            sprite.setRegion(idleTexture);
+        }
+
         sprite.setFlip(
                 !facingLeft,
                 false);
@@ -49,8 +75,11 @@ public class FarmerAnimator {
     }
 
     public void render(SpriteBatch batch) {
+
         hitFlash.begin(batch);
+
         sprite.draw(batch);
+
         hitFlash.end(batch);
     }
 }

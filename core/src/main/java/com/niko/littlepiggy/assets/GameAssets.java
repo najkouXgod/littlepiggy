@@ -17,6 +17,8 @@ public class GameAssets {
 
     public static final String PIG_SHEET = "piggy/piggysheet.png";
 
+    public static final String ABILITIES = "ui/abilities.png";
+
     public static final String FARMER_IDLE = "farmer/farmer.png";
 
     public static final String FARMER_SHOOTING = "farmer/shooting.png";
@@ -51,6 +53,7 @@ public class GameAssets {
     public void loadAll() {
 
         manager.load(PIG_SHEET, Texture.class);
+        manager.load(ABILITIES, Texture.class);
 
         manager.load(FARMER_IDLE, Texture.class);
         manager.load(FARMER_SHOOTING, Texture.class);

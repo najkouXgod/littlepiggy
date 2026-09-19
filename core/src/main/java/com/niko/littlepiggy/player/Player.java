@@ -2,6 +2,7 @@ package com.niko.littlepiggy.player;
 
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.fx.ScreenShake;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
@@ -29,17 +30,10 @@ public class Player implements Damageable {
                 startX,
                 startY);
 
-        combat = new PlayerCombat(physics, assets);
+        combat = new PlayerCombat(
+                physics,
+                assets);
 
-        /*
-         * Viktigt:
-         * Box2D-body:n identifieras fortfarande som Player.
-         *
-         * Det gör att t.ex. Farmer range-sensorn fortfarande
-         * kan använda:
-         *
-         * body.getUserData() instanceof Player
-         */
         physics.setOwner(this);
 
         controller = new PlayerController(physics);
@@ -54,7 +48,9 @@ public class Player implements Damageable {
                 combat.blocksMovement());
 
         if (controller.didStartBackflip()) {
+
             animator.startBackflip();
+
             combat.startBackflipAttack(
                     controller.isFacingLeft());
         }
@@ -87,12 +83,32 @@ public class Player implements Damageable {
         return combat.isDashing();
     }
 
+    public boolean isCharging() {
+        return combat.isCharging();
+    }
+
     public float getDashCharge() {
         return combat.getChargePercent();
     }
 
     public float getDashChargeTime() {
         return combat.getChargeTime();
+    }
+
+    /*
+     * Dash är redo när PlayerCombat inte håller på
+     * med charge/startup/dash/recovery.
+     */
+    public boolean isDashReady() {
+        return !combat.blocksMovement();
+    }
+
+    public boolean isBackflipReady() {
+        return controller.isBackflipReady();
+    }
+
+    public float getBackflipCooldownPercent() {
+        return controller.getBackflipCooldownPercent();
     }
 
     public float getX() {
@@ -123,10 +139,6 @@ public class Player implements Damageable {
         physics.endGroundContact();
     }
 
-    public boolean isCharging() {
-        return combat.isCharging();
-    }
-
     @Override
     public void applyKnockback(float x, float y) {
         physics.applyImpulse(x, y);
@@ -134,8 +146,11 @@ public class Player implements Damageable {
 
     @Override
     public void takeDamage(float amount) {
+
         playerStats.takeDamage(amount);
+
         ScreenShake.addTrauma(0.5f);
+
         animator.triggerFlash();
     }
 

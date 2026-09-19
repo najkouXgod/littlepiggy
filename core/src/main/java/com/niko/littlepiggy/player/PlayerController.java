@@ -156,4 +156,14 @@ public class PlayerController {
     public boolean didStartBackflip() {
         return backflipStartedThisFrame;
     }
+
+    public boolean isBackflipReady() {
+        return backflipCooldownRemaining <= 0f;
+    }
+
+    public float getBackflipCooldownPercent() {
+        return 1f - Math.min(
+                1f,
+                backflipCooldownRemaining / BACKFLIP_COOLDOWN);
+    }
 }

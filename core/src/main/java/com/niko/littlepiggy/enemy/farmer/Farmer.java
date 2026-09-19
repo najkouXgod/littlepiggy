@@ -17,6 +17,7 @@ public class Farmer implements Damageable {
     private final FarmerPhysics physics;
     private final FarmerAI ai;
     private final FarmerAnimator animator;
+
     private float health = MAX_HEALTH;
 
     public Farmer(
@@ -30,13 +31,12 @@ public class Farmer implements Damageable {
                 x,
                 y);
 
-        /*
-         * Box2D-fixtures måste fortfarande kunna
-         * identifieras som just denna Farmer.
-         */
         physics.setOwner(this);
 
-        ai = new FarmerAI(physics, this, assets);
+        ai = new FarmerAI(
+                physics,
+                this,
+                assets);
 
         animator = new FarmerAnimator(assets);
     }
@@ -50,6 +50,14 @@ public class Farmer implements Damageable {
         Array<Pellet> pellets = ai.update(
                 delta,
                 playerPosition);
+
+        /*
+         * FarmerAI returnerar pellets exakt när
+         * bonden avfyrar sitt gevär.
+         */
+        if (pellets != null && pellets.size > 0) {
+            animator.startShooting();
+        }
 
         animator.update(
                 delta,

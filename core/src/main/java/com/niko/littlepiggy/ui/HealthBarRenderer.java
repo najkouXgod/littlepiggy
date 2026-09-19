@@ -13,8 +13,8 @@ public class HealthBarRenderer {
     private static final float X = 0.4f;
     private static final float Y = 8.05f;
 
-    private static final float WIDTH = 5.5f;
-    private static final float HEIGHT = 0.55f;
+    private static final float WIDTH = 4f;
+    private static final float HEIGHT = 0.4f;
 
     private static final float BORDER = 0.05f;
 

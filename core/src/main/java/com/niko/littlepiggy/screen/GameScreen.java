@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.niko.littlepiggy.screen.WinScreen;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.ui.HealthBarRenderer;
+import com.niko.littlepiggy.ui.AbilityHudRenderer;
 import com.niko.littlepiggy.projectile.Pellet;
 import com.niko.littlepiggy.projectile.ProjectileManager;
 import com.niko.littlepiggy.projectile.ProjectileRenderer;
@@ -64,6 +65,7 @@ public class GameScreen extends BaseScreen {
 
     private final ProjectileRenderer projectileRenderer;
     private final HealthBarRenderer healthBarRenderer;
+    private final AbilityHudRenderer abilityHudRenderer;
 
     private final Player player;
 
@@ -89,6 +91,8 @@ public class GameScreen extends BaseScreen {
 
         projectileRenderer = new ProjectileRenderer();
         healthBarRenderer = new HealthBarRenderer();
+        abilityHudRenderer = new AbilityHudRenderer(
+                game.getAssets());
 
         gameMap = new GameMap(mapName);
 
@@ -269,6 +273,10 @@ public class GameScreen extends BaseScreen {
                 player.getMaxHealth(),
                 rawDelta);
 
+        abilityHudRenderer.render(
+                player.isBackflipReady(),
+                player.isDashReady());
+
         if (debugOverlay != null) {
             debugOverlay.update(rawDelta);
             debugOverlay.render();
@@ -360,6 +368,7 @@ public class GameScreen extends BaseScreen {
         physics.dispose();
         projectileRenderer.dispose();
         healthBarRenderer.dispose();
+        abilityHudRenderer.dispose();
         lighting.dispose();
         if (debugOverlay != null)
             debugOverlay.dispose();
