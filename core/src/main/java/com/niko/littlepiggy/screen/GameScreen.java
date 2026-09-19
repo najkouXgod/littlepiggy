@@ -1,340 +1,386 @@
 package com.niko.littlepiggy.screen;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Array;
-
-import com.niko.littlepiggy.screen.WinScreen;
-import com.niko.littlepiggy.level.Goal;
-import com.niko.littlepiggy.ui.HealthBarRenderer;
-import com.niko.littlepiggy.ui.AbilityHudRenderer;
-import com.niko.littlepiggy.projectile.Pellet;
-import com.niko.littlepiggy.projectile.ProjectileManager;
-import com.niko.littlepiggy.projectile.ProjectileRenderer;
-import com.niko.littlepiggy.player.Player;
-import com.niko.littlepiggy.player.PlayerStats;
-import com.niko.littlepiggy.item.Apple;
-import com.niko.littlepiggy.assets.GameAssets;
-import com.niko.littlepiggy.enemy.farmer.Farmer;
-import com.niko.littlepiggy.enemy.dog.Dog;
-import com.niko.littlepiggy.debug.DebugConfig;
-import com.niko.littlepiggy.debug.DebugOverlay;
-import com.niko.littlepiggy.Main;
-import com.niko.littlepiggy.physics.PhysicsManager;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-
-import com.niko.littlepiggy.world.GameMap;
-import com.niko.littlepiggy.world.MapObjectSpawner;
-import com.niko.littlepiggy.world.TerrainCollisionFactory;
-import com.niko.littlepiggy.fx.ScreenShake;
-import com.niko.littlepiggy.fx.HitStop;
-import com.niko.littlepiggy.lighting.LightingManager;
-import com.niko.littlepiggy.world.LightObjectSpawner;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 import box2dLight.PointLight;
+
+import com.niko.littlepiggy.Main;
+
+import com.niko.littlepiggy.assets.GameAssets;
+
+import com.niko.littlepiggy.debug.DebugOverlay;
+
+import com.niko.littlepiggy.fx.HitStop;
+import com.niko.littlepiggy.fx.ScreenShake;
+
+import com.niko.littlepiggy.level.Level;
+import com.niko.littlepiggy.level.LevelEntities;
+
+import com.niko.littlepiggy.lighting.LightingManager;
+
+import com.niko.littlepiggy.physics.PhysicsManager;
+
+import com.niko.littlepiggy.player.Player;
+
+import com.niko.littlepiggy.projectile.ProjectileManager;
+import com.niko.littlepiggy.projectile.ProjectileRenderer;
+
+import com.niko.littlepiggy.ui.AbilityHudRenderer;
+import com.niko.littlepiggy.ui.HealthBarRenderer;
+
+import com.niko.littlepiggy.world.LightObjectSpawner;
 
 public class GameScreen extends BaseScreen {
 
     private static final float DEATH_MARGIN = 3f;
+
     private static final float CAMERA_MARGIN_X = 2f;
     private static final float CAMERA_MARGIN_Y = 1.5f;
 
-    /*
-     * Fixed timestep för all gameplay-logik (fysik, AI, spelare).
-     * Gör att spelet beter sig identiskt oavsett bildfrekvens,
-     * och gör hit-stop trivialt: hit-stop = kör noll steg denna frame.
-     */
     private static final float FIXED_TIMESTEP = 1f / 60f;
     private static final float MAX_FRAME_TIME = 0.25f;
 
-    private float accumulator = 0f;
-
-    private DebugOverlay debugOverlay;
-
     private final Main game;
-    private final String mapName;
-    private final Goal goal;
+    private final String levelName;
 
     private final PhysicsManager physics;
-    private final GameMap gameMap;
-    private final ProjectileManager projectileManager;
 
+    private final ProjectileManager projectileManager;
     private final ProjectileRenderer projectileRenderer;
-    private final HealthBarRenderer healthBarRenderer;
-    private final AbilityHudRenderer abilityHudRenderer;
+
+    private final Level level;
+    private final LevelEntities entities;
 
     private final Player player;
-
-    private final Array<Farmer> farmers;
-    private final Array<Dog> dogs;
-    private final Array<Apple> apples;
-
-    private final Texture sky;
-
-    private final SpriteBatch batch;
 
     private final LightingManager lighting;
     private final Array<PointLight> lamps;
 
-    public GameScreen(Main game, String mapName) {
+    private final HealthBarRenderer healthBarRenderer;
+    private final AbilityHudRenderer abilityHudRenderer;
+
+    private final Texture sky;
+    private final SpriteBatch batch;
+
+    private DebugOverlay debugOverlay;
+
+    private float accumulator;
+
+    public GameScreen(
+            Main game,
+            String levelName) {
+
         super();
+
         this.game = game;
-        this.mapName = mapName;
+        this.levelName = levelName;
 
+        /*
+         * Physics
+         */
         physics = new PhysicsManager();
-        projectileManager = new ProjectileManager(
-                physics.getWorld());
-
-        projectileRenderer = new ProjectileRenderer();
-        healthBarRenderer = new HealthBarRenderer();
-        abilityHudRenderer = new AbilityHudRenderer(
-                game.getAssets());
-
-        gameMap = new GameMap(mapName);
-
-        TiledMap tiledMap = gameMap.getTiledMap();
 
         World world = physics.getWorld();
 
-        lighting = new LightingManager(world);
+        /*
+         * Level
+         *
+         * Level skapar:
+         * - GameMap
+         * - terrain collisions
+         * - LevelEntities
+         */
+        level = new Level(
+                levelName,
+                world,
+                game);
 
-        player = new Player(physics.getWorld(), 3, 3, game.getAssets());
+        entities = level.getEntities();
+
+        /*
+         * Player
+         *
+         * Fortfarande hårdkodad spawn tills vi
+         * flyttar PlayerSpawn till Tiled.
+         */
+        player = new Player(
+                world,
+                3f,
+                3f,
+                game.getAssets());
 
         physics.setContactListener(player);
-        farmers = MapObjectSpawner.spawnLayer(
-                tiledMap,
-                "Farmers",
-                (tile, x, y) -> new Farmer(
-                        world,
-                        game.getAssets(),
-                        x,
-                        y));
-        dogs = MapObjectSpawner.spawnLayer(
-                tiledMap,
-                "Dogs",
-                (tile, x, y) -> new Dog(
-                        world,
-                        game.getAssets(),
-                        x,
-                        y));
-        apples = MapObjectSpawner.spawnLayer(
-                tiledMap,
-                "Apples",
-                (tile, x, y) -> new Apple(
-                        world,
-                        tile.getTextureRegion(),
-                        x,
-                        y));
-        goal = MapObjectSpawner.spawnSingle(
-                tiledMap,
-                "Goal",
-                (tile, x, y) -> new Goal(
-                        world,
-                        tile.getTextureRegion(),
-                        x,
-                        y));
 
-        TerrainCollisionFactory.buildCollisions(
-                world,
-                tiledMap);
+        /*
+         * Projectiles
+         */
+        projectileManager = new ProjectileManager(world);
 
-        lamps = LightObjectSpawner.spawnLights(tiledMap, lighting);
+        projectileRenderer = new ProjectileRenderer();
 
-        sky = game.getAssets().getTexture(GameAssets.SKY);
+        /*
+         * Lighting
+         */
+        lighting = new LightingManager(world);
+
+        lamps = LightObjectSpawner.spawnLights(
+                level.getMap().getTiledMap(),
+                lighting);
+
+        /*
+         * HUD
+         */
+        healthBarRenderer = new HealthBarRenderer();
+
+        abilityHudRenderer = new AbilityHudRenderer(
+                game.getAssets());
+
+        /*
+         * Rendering
+         */
+        sky = game.getAssets().getTexture(
+                GameAssets.SKY);
 
         batch = new SpriteBatch();
     }
 
     @Override
     public void show() {
+
         debugOverlay = new DebugOverlay(player);
     }
 
     @Override
     public void render(float rawDelta) {
+
         ScreenUtils.clear(Color.BLUE);
 
+        /*
+         * Hit stop uppdateras med riktig frame-delta.
+         */
         HitStop.update(rawDelta);
 
+        /*
+         * Gameplay stannar under hit stop.
+         */
         if (!HitStop.isActive()) {
 
-            float delta = Math.min(rawDelta, MAX_FRAME_TIME);
+            float delta = Math.min(
+                    rawDelta,
+                    MAX_FRAME_TIME);
 
             accumulator += delta;
 
             while (accumulator >= FIXED_TIMESTEP) {
 
-                stepGameplay(FIXED_TIMESTEP);
+                stepGameplay(
+                        FIXED_TIMESTEP);
 
                 accumulator -= FIXED_TIMESTEP;
             }
         }
 
-        for (int i = farmers.size - 1; i >= 0; i--) {
+        /*
+         * Ta bort döda enemies och plockade items.
+         */
+        entities.cleanupDeadEnemies();
+        entities.cleanupCollectedItems();
 
-            Farmer farmer = farmers.get(i);
-
-            if (farmer.isDead()) {
-                farmer.destroy();
-                farmers.removeIndex(i);
-                ScreenShake.addTrauma(0.4f);
-                HitStop.trigger(0.08f);
-            }
-        }
-
-        for (int i = dogs.size - 1; i >= 0; i--) {
-
-            Dog dog = dogs.get(i);
-
-            if (dog.isDead()) {
-                dog.destroy();
-                dogs.removeIndex(i);
-                ScreenShake.addTrauma(0.4f);
-                HitStop.trigger(0.08f);
-            }
-        }
-
-        if (player.isDead() || isPlayerOutOfBounds()) {
+        /*
+         * Game over.
+         */
+        if (player.isDead()
+                || isPlayerOutOfBounds()) {
 
             game.setScreen(
                     new GameOverScreen(
                             game,
-                            mapName));
+                            levelName));
 
             dispose();
+
             return;
-        }
-        if (goal != null && goal.isReached()) {
-            if (farmers.size == 0 && dogs.size == 0) {
-                game.setScreen(new WinScreen(game, mapName));
-                dispose();
-                return;
-            }
-
-            goal.reset();
-        }
-
-        for (int i = apples.size - 1; i >= 0; i--) {
-
-            Apple apple = apples.get(i);
-
-            if (apple.isCollected()) {
-                apple.removeBody();
-                apples.removeIndex(i);
-            }
         }
 
         /*
-         * Kameran (inklusive skärmskakning) uppdateras med RÅ delta,
-         * inte fixed timestep - det är bara visuellt och ska inte
-         * frysas eller hacka till av hit-stop.
+         * Level klar.
+         *
+         * Goal fungerar endast när alla enemies är döda.
+         */
+        if (entities.isGoalReached()) {
+
+            if (entities.areAllEnemiesDead()) {
+
+                game.setScreen(
+                        new WinScreen(
+                                game,
+                                levelName));
+
+                dispose();
+
+                return;
+            }
+
+            entities.resetGoal();
+        }
+
+        /*
+         * Camera och screen shake är visuellt,
+         * därför används rawDelta.
          */
         updateCamera(rawDelta);
 
-        batch.setProjectionMatrix(camera.combined);
+        renderWorld();
 
+        renderHud(rawDelta);
+    }
+
+    private void stepGameplay(float delta) {
+
+        /*
+         * Box2D.
+         */
+        physics.step(delta);
+
+        /*
+         * Alla level entities.
+         *
+         * Farmer-projectiles läggs också till här.
+         */
+        entities.update(
+                delta,
+                player.getPosition(),
+                projectileManager);
+
+        /*
+         * Player.
+         */
+        player.update(delta);
+
+        /*
+         * Projectiles.
+         */
+        projectileManager.update(delta);
+    }
+
+    private void renderWorld() {
+
+        batch.setProjectionMatrix(
+                camera.combined);
+
+        /*
+         * Sky.
+         */
         batch.begin();
 
-        batch.draw(sky, camera.position.x - 16f, camera.position.y - 4.5f, 32f, 9f);
+        batch.draw(
+                sky,
+                camera.position.x - 16f,
+                camera.position.y - 4.5f,
+                32f,
+                9f);
 
         batch.end();
 
-        gameMap.render(camera);
+        /*
+         * Tiled map.
+         */
+        level.getMap().render(camera);
 
-        projectileRenderer.render(camera, projectileManager);
+        /*
+         * Projectiles.
+         */
+        projectileRenderer.render(
+                camera,
+                projectileManager);
 
+        /*
+         * Box2D debug.
+         *
+         * Vi kan senare koppla detta till F1/debug-mode.
+         */
         physics.renderDebug(camera);
 
+        /*
+         * Entities.
+         */
         batch.begin();
 
         player.render(batch);
-        for (Farmer farmer : farmers) {
-            farmer.render(batch);
-        }
-        for (Dog dog : dogs) {
-            dog.render(batch);
-        }
-        for (Apple apple : apples) {
-            apple.render(batch);
-        }
-        if (goal != null) {
-            goal.render(batch);
-        }
+
+        entities.render(batch);
 
         batch.end();
+
+        /*
+         * Lights.
+         */
         lighting.update(camera);
+    }
+
+    private void renderHud(float delta) {
 
         healthBarRenderer.render(
                 player.getHealth(),
                 player.getMaxHealth(),
-                rawDelta);
+                delta);
 
         abilityHudRenderer.render(
                 player.isBackflipReady(),
                 player.isDashReady());
 
         if (debugOverlay != null) {
-            debugOverlay.update(rawDelta);
+
+            debugOverlay.update(delta);
             debugOverlay.render();
         }
-    }
-
-    /**
-     * All gameplay-logik som måste vara deterministisk och
-     * som hit-stop ska kunna frysa. Körs 0, 1 eller flera
-     * gånger per renderad frame beroende på bildfrekvens.
-     */
-    private void stepGameplay(float delta) {
-
-        physics.step(delta);
-
-        for (Farmer farmer : farmers) {
-
-            projectileManager.addAll(
-                    farmer.update(
-                            delta,
-                            player.getPosition()));
-        }
-
-        for (Dog dog : dogs) {
-            dog.update(delta, player.getPosition());
-        }
-
-        player.update(delta);
-
-        projectileManager.update(delta);
     }
 
     private boolean isPlayerOutOfBounds() {
 
         return player.getY() < -DEATH_MARGIN
+
                 || player.getX() < -DEATH_MARGIN
-                || player.getX() > gameMap.getWorldWidth() + DEATH_MARGIN;
+
+                || player.getX() > level.getWorldWidth()
+                        + DEATH_MARGIN;
     }
 
     private void updateCamera(float delta) {
 
         ScreenShake.update(delta);
 
-        float halfWidth = camera.viewportWidth * camera.zoom / 2f;
+        float halfWidth = camera.viewportWidth
+                * camera.zoom
+                / 2f;
 
-        float halfHeight = camera.viewportHeight * camera.zoom / 2f;
+        float halfHeight = camera.viewportHeight
+                * camera.zoom
+                / 2f;
 
-        float mapWidth = gameMap.getWorldWidth();
+        float mapWidth = level.getWorldWidth();
 
-        float mapHeight = gameMap.getWorldHeight();
+        float mapHeight = level.getWorldHeight();
 
-        float minX = halfWidth - CAMERA_MARGIN_X;
+        float minX = halfWidth
+                - CAMERA_MARGIN_X;
 
-        float maxX = mapWidth - halfWidth + CAMERA_MARGIN_X;
+        float maxX = mapWidth
+                - halfWidth
+                + CAMERA_MARGIN_X;
 
-        float minY = halfHeight - CAMERA_MARGIN_Y;
+        float minY = halfHeight
+                - CAMERA_MARGIN_Y;
 
-        float maxY = mapHeight - halfHeight + CAMERA_MARGIN_Y;
+        float maxY = mapHeight
+                - halfHeight
+                + CAMERA_MARGIN_Y;
 
         float cameraX = MathUtils.clamp(
                 player.getX(),
@@ -347,30 +393,53 @@ public class GameScreen extends BaseScreen {
                 maxY);
 
         camera.position.set(
-                cameraX + ScreenShake.getOffsetX(),
-                cameraY + ScreenShake.getOffsetY(),
+                cameraX
+                        + ScreenShake.getOffsetX(),
+
+                cameraY
+                        + ScreenShake.getOffsetY(),
+
                 0f);
 
         camera.update();
     }
 
     @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        if (debugOverlay != null)
-            debugOverlay.resize(width, height);
+    public void resize(
+            int width,
+            int height) {
+
+        super.resize(
+                width,
+                height);
+
+        if (debugOverlay != null) {
+
+            debugOverlay.resize(
+                    width,
+                    height);
+        }
     }
 
     @Override
     public void dispose() {
+
         batch.dispose();
-        gameMap.dispose();
+
+        level.dispose();
+
         physics.dispose();
+
         projectileRenderer.dispose();
+
         healthBarRenderer.dispose();
+
         abilityHudRenderer.dispose();
+
         lighting.dispose();
-        if (debugOverlay != null)
+
+        if (debugOverlay != null) {
             debugOverlay.dispose();
+        }
     }
 }
