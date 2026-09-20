@@ -14,6 +14,31 @@ public class Farmer implements Damageable {
 
     private static final float MAX_HEALTH = 60f;
 
+    /*
+     * Farmer kan falla ungefär 3 world units
+     * utan skada.
+     */
+    private static final float SAFE_FALL_DISTANCE = 3f;
+
+    /*
+     * Varje world unit över safe distance ger
+     * 15 damage.
+     *
+     * 4 units -> 15
+     * 5 units -> 30
+     * 6 units -> 45
+     * 7 units -> 60
+     */
+    private static final float FALL_DAMAGE_PER_UNIT = 15f;
+
+    /*
+     * Kartans normala nederkant är y = 0.
+     *
+     * När Farmer kommit två world units under
+     * kartan räknas han som bortfallen.
+     */
+    private static final float OUT_OF_BOUNDS_DEATH_Y = -2f;
+
     private final FarmerPhysics physics;
     private final FarmerAI ai;
     private final FarmerAnimator animator;
@@ -38,7 +63,8 @@ public class Farmer implements Damageable {
                 this,
                 assets);
 
-        animator = new FarmerAnimator(assets);
+        animator = new FarmerAnimator(
+                assets);
     }
 
     public Array<Pellet> update(
@@ -46,6 +72,34 @@ public class Farmer implements Damageable {
             Vector2 playerPosition) {
 
         physics.update(delta);
+
+        /*
+         * Farmer har fallit ned utanför kartan.
+         */
+        if (physics.getY() < OUT_OF_BOUNDS_DEATH_Y) {
+
+            health = 0f;
+
+            return null;
+        }
+
+        /*
+         * Kolla fall damage exakt den frame
+         * Farmer landar.
+         */
+        if (physics.didJustLand()) {
+
+            applyFallDamage(
+                    physics.getLastFallDistance());
+        }
+
+        /*
+         * Om fallet dödade Farmer ska han inte
+         * hinna skjuta samma frame.
+         */
+        if (isDead()) {
+            return null;
+        }
 
         Array<Pellet> pellets = ai.update(
                 delta,
@@ -71,6 +125,23 @@ public class Farmer implements Damageable {
         return pellets;
     }
 
+    private void applyFallDamage(
+            float fallDistance) {
+
+        if (fallDistance <= SAFE_FALL_DISTANCE) {
+
+            return;
+        }
+
+        float dangerousDistance = fallDistance
+                - SAFE_FALL_DISTANCE;
+
+        float damage = dangerousDistance
+                * FALL_DAMAGE_PER_UNIT;
+
+        takeDamage(damage);
+    }
+
     public void render(SpriteBatch batch) {
         animator.render(batch);
     }
@@ -81,6 +152,18 @@ public class Farmer implements Damageable {
 
     public void playerExitedRange() {
         ai.playerExitedRange();
+    }
+
+    /*
+     * Kallas av GameContactListener när
+     * Farmerns foot sensor träffar terrain.
+     */
+    public void beginGroundContact() {
+        physics.beginGroundContact();
+    }
+
+    public void endGroundContact() {
+        physics.endGroundContact();
     }
 
     public Vector2 getPosition() {
@@ -102,7 +185,9 @@ public class Farmer implements Damageable {
             float x,
             float y) {
 
-        physics.applyImpulse(x, y);
+        physics.applyImpulse(
+                x,
+                y);
     }
 
     @Override
@@ -111,9 +196,12 @@ public class Farmer implements Damageable {
             float y,
             KnockbackMode mode) {
 
-        physics.applyImpulse(x, y);
+        physics.applyImpulse(
+                x,
+                y);
 
         if (mode == KnockbackMode.DASH) {
+
             physics.startDashKnockbackBrake();
         }
     }

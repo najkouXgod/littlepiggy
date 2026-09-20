@@ -38,6 +38,7 @@ public class GameContactListener implements ContactListener {
         checkAttackContact(a, b);
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
+        checkFarmerGroundContact(a, b, true);
         checkDogRange(a, b, true);
         checkGroundSlamEnemyContact(a, b);
         checkDogContact(a, b);
@@ -55,7 +56,61 @@ public class GameContactListener implements ContactListener {
 
         checkGroundContact(contact, a, b, false);
         checkFarmerRange(a, b, false);
+        checkFarmerGroundContact(a, b, false);
         checkDogRange(a, b, false);
+    }
+
+    private void checkFarmerGroundContact(
+            Fixture a,
+            Fixture b,
+            boolean begin) {
+
+        checkFarmerFootAgainstGround(
+                a,
+                b,
+                begin);
+
+        checkFarmerFootAgainstGround(
+                b,
+                a,
+                begin);
+    }
+
+    private void checkFarmerFootAgainstGround(
+            Fixture foot,
+            Fixture other,
+            boolean begin) {
+
+        if (!"farmerFoot".equals(
+                foot.getUserData())) {
+
+            return;
+        }
+
+        /*
+         * Just nu räknar vi bara riktig terrain
+         * som mark för Farmer.
+         */
+        if (!"ground".equals(
+                other.getUserData())) {
+
+            return;
+        }
+
+        Object owner = foot.getBody()
+                .getUserData();
+
+        if (!(owner instanceof Farmer)) {
+            return;
+        }
+
+        Farmer farmer = (Farmer) owner;
+
+        if (begin) {
+            farmer.beginGroundContact();
+        } else {
+            farmer.endGroundContact();
+        }
     }
 
     private void checkAttackContact(

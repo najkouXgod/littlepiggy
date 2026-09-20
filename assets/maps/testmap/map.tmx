@@ -9,17 +9,17 @@
  </layer>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0L0KgCAUQGHLpUeoqb+psql8/1frDgYXh1AoijgfnEXsphoDAAAAAAAA4M+qtw+QoJYaqVS1Uqfqw7oN3+h7xXcsolk6m7HnKYM0SptqkmbVEtZ9wrw9mqXzGXvudr6xk9aL/+ee5av3PQCYJgv1
+   eJztkssOQDAQRQcbn8DKa+W1wv//miY0GSJUlIWck5yNdJq5V0UAAAAAAAAAAAD8khrDA/9GIkvWytjfcPp4z9jTPaVssw6OuuS1Xer3khlzZbF+j9YZnWufMZDjN6jnr850sv1vPvPaLvVcbWyU7Y37Rod9zs488Ww/27Ht0ld/T/NOL+WdAcExGkQ=
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0jELgCAQhuEjqMZwq7XWmoT6//8sDxcRg6KLIt4HPlCRw1NFAAAAAAAAAFtDSFXI3/QSe53ePshJ9cX9bTYfJfa62BynqElyt05XWDvaq1wy1v86S+zVsl99g/xev8CHrCGbcV19A2dc04J/qO4OlOoCxw==
+   eJzt0TEKwCAMhWEp1I7FzXtk8P43K4EODlUxprj8H4gi4RlMCAAAAAAAAAAs8u4GJp2T9dcvXfTFaq3m3B93rVqVqvOx+H6LzmDHv47IuxfnXJ1Bcs70IOMSkwcl9gE6
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0bEJACAMRcGgZQZw/02dQDsj6B2kf59EAAAAAHBa3g4otNvaFtcLuk544a8Zb+z4xbgdwNYEcy8AXg==
+   eJzt0bEJACAMRUHR0gHcf1MnMF2i4B2kf5+0BgAAAEC2eTugULS1H24UdGX46a+8Yd0OILQBKnsASA==
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">

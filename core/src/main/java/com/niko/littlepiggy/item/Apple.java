@@ -35,7 +35,7 @@ public class Apple {
 
         CircleShape shape = new CircleShape();
         shape.setRadius(BODY_RADIUS);
-        shape.setPosition(new Vector2(0, 0.20f));
+        shape.setPosition(new Vector2(0, -0.3f));
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
