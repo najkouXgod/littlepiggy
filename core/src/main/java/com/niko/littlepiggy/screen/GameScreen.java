@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.math.Vector2;
 
 import box2dLight.PointLight;
 
@@ -34,7 +35,7 @@ import com.niko.littlepiggy.projectile.ProjectileRenderer;
 import com.niko.littlepiggy.ui.AbilityHudRenderer;
 import com.niko.littlepiggy.ui.HealthBarRenderer;
 
-import com.niko.littlepiggy.world.LightObjectSpawner;
+import com.niko.littlepiggy.lighting.LightObjectSpawner;
 
 public class GameScreen extends BaseScreen {
 
@@ -103,16 +104,11 @@ public class GameScreen extends BaseScreen {
 
         entities = level.getEntities();
 
-        /*
-         * Player
-         *
-         * Fortfarande hårdkodad spawn tills vi
-         * flyttar PlayerSpawn till Tiled.
-         */
+        Vector2 playerSpawn = level.getPlayerSpawn();
         player = new Player(
                 world,
-                3f,
-                3f,
+                playerSpawn.x,
+                playerSpawn.y,
                 game.getAssets());
 
         physics.setContactListener(player);

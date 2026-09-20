@@ -1,4 +1,4 @@
-package com.niko.littlepiggy.world;
+package com.niko.littlepiggy.lighting;
 
 import box2dLight.PointLight;
 
@@ -9,7 +9,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Array;
 
-import com.niko.littlepiggy.lighting.LightingManager;
+import com.niko.littlepiggy.world.TileCoordinates;
 
 /**
  * Läser en Tiled OBJECT-layer (inte tile-layer, till skillnad från
@@ -23,10 +23,10 @@ import com.niko.littlepiggy.lighting.LightingManager;
  * Så här lägger du till en lampa i Tiled:
  * 1. Skapa (eller använd) ett Object Layer som heter exakt "Lights".
  * 2. Lägg till ett Point-objekt (eller vilken objekttyp som helst,
- *    bara positionen används) där lampan ska stå.
+ * bara positionen används) där lampan ska stå.
  * 3. Ge objektet Custom Properties (högerklicka -> Properties -> +):
- *      - "radius" (float), t.ex. 4.0
- *      - "color" (string), hex utan '#', t.ex. "FFAA55"
+ * - "radius" (float), t.ex. 4.0
+ * - "color" (string), hex utan '#', t.ex. "FFAA55"
  * Båda är valfria, se DEFAULT_-konstanterna nedan för vad som
  * används om du hoppar över dem.
  */

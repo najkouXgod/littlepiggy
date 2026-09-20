@@ -1,35 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="170">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="21" nextobjectid="172">
  <tileset firstgid="1" source="terrain.tsx"/>
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="16" name="Goal" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1KERACAMBMFYsGCh/zJJCwiI2Z15f+ojAAAAAN7Y1QHwUMv16oiPRm5WR3y0wodx7wAzdgCU
+   eJzt1CEOACEQBMG1YMEe/38maBwCNpdUJeNbTQQAAADAHSM74KfKWs2OeKit9ewI2Hzhwzg3AZOGAJQ=
   </data>
  </layer>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzzsKwCAQBUBjLLyF3v+UsRTRSlMIM/Bwi/1gCAAAAAAA5KHOq8YNz5Cd+djydkmT/bNbf/zrhNJSu/dGH+LcALw=
+   eJzt0L0KgCAUQGHLpUeoqb+psql8/1frDgYXh1AoijgfnEXsphoDAAAAAAAA4M+qtw+QoJYaqVS1Uqfqw7oN3+h7xXcsolk6m7HnKYM0SptqkmbVEtZ9wrw9mqXzGXvudr6xk9aL/+ee5av3PQCYJgv1
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzzEKgEAMBMBYiIWCWHj/f6onKByxFTxkBrZI0mQjAAAAAIDezWlePvnifVPNmHZn1z3tSvyj81azNvMQz663ct3b0LcDzT8Atg==
+   eJzt0jELgCAQhuEjqMZwq7XWmoT6//8sDxcRg6KLIt4HPlCRw1NFAAAAAAAAAFtDSFXI3/QSe53ePshJ9cX9bTYfJfa62BynqElyt05XWDvaq1wy1v86S+zVsl99g/xev8CHrCGbcV19A2dc04J/qO4OlOoCxw==
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzrEJACAQA0AXsLZU919SBQtrQYTnDkJSJiUAAAAAgBjykYjK7wOP1Zm29+r+7cmdAfmkAL8=
+   eJzt0bEJACAMRcGgZQZw/02dQDsj6B2kf59EAAAAAHBa3g4otNvaFtcLuk544a8Zb+z4xbgdwNYEcy8AXg==
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzjENAAAIA7Bd+JeMjCXQKmgCAAAAAHw17QAcsitQAAc=
+   eJzt0aENAAAIBLF37L8xCyBwINoJLrkEAAAAgA/qOoA1r4BJA1ysAA8=
   </data>
  </layer>
  <layer id="18" name="Dogs" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzjENAAAIA7Bd+JeMjCXQKmgCAAAAAFww7QA8tyyIAAc=
+   eJzt0TENAAAMw7B+48940ijs6GMjiJQEAAAAgLZpB3B8AD4WXeAADw==
   </data>
  </layer>
+ <objectgroup id="19" name="PlayerSpawn">
+  <object id="170" x="30" y="761.75">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="20" name="Lights">
+  <object id="171" x="298" y="679.5">
+   <properties>
+    <property name="color" value="FFAA55"/>
+    <property name="radius" type="float" value="4"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
 </map>
