@@ -1,6 +1,7 @@
 package com.niko.littlepiggy.physics;
 
-import com.niko.littlepiggy.player.PlayerAttackHitbox;
+import com.niko.littlepiggy.player.combat.PlayerAttackHitbox;
+import com.niko.littlepiggy.player.event.PlayerEvent;
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.level.Goal;
 import com.niko.littlepiggy.projectile.Projectile;
@@ -93,8 +94,7 @@ public class GameContactListener implements ContactListener {
         if (target instanceof Damageable) {
             Damageable damageable = (Damageable) target;
 
-            attackHitbox.getCombat().hit(
-                    attackHitbox.getType(),
+            attackHitbox.onHit(
                     damageable,
                     targetFixture.getBody().getPosition().x);
         }
@@ -173,10 +173,6 @@ public class GameContactListener implements ContactListener {
             Fixture a,
             Fixture b) {
 
-        if (!player.isGroundSlamFalling()) {
-            return;
-        }
-
         Fixture playerFixture = null;
         Fixture enemyFixture = null;
 
@@ -219,8 +215,7 @@ public class GameContactListener implements ContactListener {
         if (player.getVelocity().y >= 0f) {
             return;
         }
-
-        player.requestGroundSlamEnemyContact();
+        player.pushEvent(PlayerEvent.HIT_ENEMY_FROM_ABOVE);
     }
 
     private boolean isPlayerImpactFixture(
@@ -434,7 +429,7 @@ public class GameContactListener implements ContactListener {
      * en Dog av misstag för att ta skada.
      */
     private void checkDogContact(Fixture a, Fixture b) {
-        if (player.isGroundSlamFalling()) {
+        if (player.isImmuneToContactDamage()) {
             return;
         }
         Dog dog = null;

@@ -1,8 +1,19 @@
-package com.niko.littlepiggy.player;
+package com.niko.littlepiggy.player.physics;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
+/**
+ * Spelarens Box2D-body: collider, foot sensors, velocity, gravity och
+ * ground contacts.
+ *
+ * Klassen är helt generisk. Den vet inte vad Dash, Backflip eller
+ * Ground Slam är - abilities och movement använder bara de generella
+ * operationerna här (setVelocity, setGravityScale, applyImpulse ...).
+ *
+ * Body:n ägs bara här. Andra klasser får skapa/ta bort sensor-fixtures
+ * via createSensor/destroyFixture men når aldrig Body direkt.
+ */
 public class PlayerPhysics {
 
     private static final float BODY_RADIUS = 0.20f;
@@ -16,6 +27,14 @@ public class PlayerPhysics {
     private final Body body;
 
     private int groundContacts;
+
+    /*
+     * Gravity som gäller "normalt". Abilities som tillfälligt vill ändra
+     * gravity använder setGravityScale() och återställer med
+     * resetGravityScale(). PlayerMovement kan senare ändra basvärdet
+     * (t.ex. lägre gravity i vatten) utan att abilities behöver veta.
+     */
+    private float baseGravityScale = 1f;
 
     public PlayerPhysics(World world, float x, float y) {
         body = createBody(world, x, y);
@@ -123,26 +142,20 @@ public class PlayerPhysics {
         shape.dispose();
     }
 
-    public Fixture createAttackHitbox(
-            float width,
-            float height,
-            float offsetX,
-            Object owner) {
+    /* ------------------------------------------------------------
+     * Generiska sensorer (används av AttackHitboxManager)
+     * ------------------------------------------------------------ */
 
-        return createAttackHitbox(
-                width,
-                height,
-                offsetX,
-                0f,
-                owner);
-    }
-
-    public Fixture createAttackHitbox(
+    /**
+     * Skapar en rektangulär sensor på spelarens body.
+     * Får inte anropas medan world.step() pågår.
+     */
+    public Fixture createSensor(
             float width,
             float height,
             float offsetX,
             float offsetY,
-            Object owner) {
+            Object userData) {
 
         PolygonShape shape = new PolygonShape();
 
@@ -153,13 +166,12 @@ public class PlayerPhysics {
                 0f);
 
         FixtureDef fixtureDef = new FixtureDef();
-
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
 
         Fixture fixture = body.createFixture(fixtureDef);
 
-        fixture.setUserData(owner);
+        fixture.setUserData(userData);
 
         shape.dispose();
 
@@ -177,6 +189,10 @@ public class PlayerPhysics {
         body.setUserData(owner);
     }
 
+    /* ------------------------------------------------------------
+     * Position / velocity
+     * ------------------------------------------------------------ */
+
     public float getX() {
         return body.getPosition().x;
     }
@@ -193,6 +209,10 @@ public class PlayerPhysics {
         return body.getLinearVelocity().cpy();
     }
 
+    public void setVelocity(float x, float y) {
+        body.setLinearVelocity(x, y);
+    }
+
     public void setHorizontalVelocity(float velocity) {
 
         body.setLinearVelocity(
@@ -200,28 +220,11 @@ public class PlayerPhysics {
                 body.getLinearVelocity().y);
     }
 
-    public void jump(float xImpulse, float yImpulse) {
+    public void setVerticalVelocity(float velocity) {
 
         body.setLinearVelocity(
                 body.getLinearVelocity().x,
-                0f);
-
-        body.applyLinearImpulse(
-                new Vector2(xImpulse, yImpulse),
-                body.getWorldCenter(),
-                true);
-    }
-
-    public void backflipJump(float xImpulse, float yImpulse) {
-
-        body.setLinearVelocity(
-                body.getLinearVelocity().x,
-                0f);
-
-        body.applyLinearImpulse(
-                new Vector2(xImpulse, yImpulse),
-                body.getWorldCenter(),
-                true);
+                velocity);
     }
 
     public void applyImpulse(float x, float y) {
@@ -231,6 +234,30 @@ public class PlayerPhysics {
                 body.getWorldCenter(),
                 true);
     }
+
+    /* ------------------------------------------------------------
+     * Gravity
+     * ------------------------------------------------------------ */
+
+    /** Tillfällig override, t.ex. 0 medan en ability hänger i luften. */
+    public void setGravityScale(float scale) {
+        body.setGravityScale(scale);
+    }
+
+    /** Går tillbaka till gravity som movement-läget bestämt. */
+    public void resetGravityScale() {
+        body.setGravityScale(baseGravityScale);
+    }
+
+    /** Ändrar "normal" gravity (för framtida movement modes). */
+    public void setBaseGravityScale(float scale) {
+        baseGravityScale = scale;
+        body.setGravityScale(scale);
+    }
+
+    /* ------------------------------------------------------------
+     * Ground contacts (foot sensors)
+     * ------------------------------------------------------------ */
 
     public boolean isGrounded() {
         return groundContacts > 0;
@@ -244,41 +271,5 @@ public class PlayerPhysics {
         groundContacts = Math.max(
                 0,
                 groundContacts - 1);
-    }
-
-    public void beginGroundSlamWindup() {
-
-        body.setGravityScale(0f);
-
-        body.setLinearVelocity(
-                0f,
-                0f);
-    }
-
-    public void holdGroundSlamWindup() {
-
-        body.setGravityScale(0f);
-
-        body.setLinearVelocity(
-                0f,
-                0f);
-    }
-
-    public void beginGroundSlamFall(float speed) {
-
-        body.setGravityScale(1f);
-
-        body.setLinearVelocity(
-                0f,
-                -Math.abs(speed));
-    }
-
-    public void finishGroundSlam() {
-
-        body.setGravityScale(1f);
-
-        body.setLinearVelocity(
-                0f,
-                body.getLinearVelocity().y);
     }
 }
