@@ -245,4 +245,40 @@ public class PlayerPhysics {
                 0,
                 groundContacts - 1);
     }
+
+    public void beginGroundSlamWindup() {
+
+        body.setGravityScale(0f);
+
+        body.setLinearVelocity(
+                0f,
+                0f);
+    }
+
+    public void holdGroundSlamWindup() {
+
+        body.setGravityScale(0f);
+
+        body.setLinearVelocity(
+                0f,
+                0f);
+    }
+
+    public void beginGroundSlamFall(float speed) {
+
+        body.setGravityScale(1f);
+
+        body.setLinearVelocity(
+                0f,
+                -Math.abs(speed));
+    }
+
+    public void finishGroundSlam() {
+
+        body.setGravityScale(1f);
+
+        body.setLinearVelocity(
+                0f,
+                body.getLinearVelocity().y);
+    }
 }

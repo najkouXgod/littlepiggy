@@ -38,6 +38,7 @@ public class GameContactListener implements ContactListener {
         checkGroundContact(contact, a, b, true);
         checkFarmerRange(a, b, true);
         checkDogRange(a, b, true);
+        checkGroundSlamEnemyContact(a, b);
         checkDogContact(a, b);
         checkAppleContact(a, b);
         checkGoalContact(a, b);
@@ -94,7 +95,8 @@ public class GameContactListener implements ContactListener {
 
             attackHitbox.getCombat().hit(
                     attackHitbox.getType(),
-                    damageable);
+                    damageable,
+                    targetFixture.getBody().getPosition().x);
         }
     }
 
@@ -165,6 +167,102 @@ public class GameContactListener implements ContactListener {
                 goal.reach();
             }
         }
+    }
+
+    private void checkGroundSlamEnemyContact(
+            Fixture a,
+            Fixture b) {
+
+        if (!player.isGroundSlamFalling()) {
+            return;
+        }
+
+        Fixture playerFixture = null;
+        Fixture enemyFixture = null;
+
+        if (isPlayerImpactFixture(a)
+                && isEnemyBodyFixture(b)) {
+
+            playerFixture = a;
+            enemyFixture = b;
+
+        } else if (isPlayerImpactFixture(b)
+                && isEnemyBodyFixture(a)) {
+
+            playerFixture = b;
+            enemyFixture = a;
+        }
+
+        if (playerFixture == null
+                || enemyFixture == null) {
+
+            return;
+        }
+
+        /*
+         * Slam ska träffa fienden uppifrån,
+         * inte genom att nudda sidan under fallet.
+         */
+        float playerY = player.getY();
+
+        float enemyY = enemyFixture
+                .getBody()
+                .getPosition().y;
+
+        if (playerY <= enemyY) {
+            return;
+        }
+
+        /*
+         * Måste faktiskt vara på väg nedåt.
+         */
+        if (player.getVelocity().y >= 0f) {
+            return;
+        }
+
+        player.requestGroundSlamEnemyContact();
+    }
+
+    private boolean isPlayerImpactFixture(
+            Fixture fixture) {
+
+        if (!(fixture.getBody().getUserData() instanceof Player)) {
+
+            return false;
+        }
+
+        /*
+         * Player body får träffa.
+         */
+        if (!fixture.isSensor()) {
+            return true;
+        }
+
+        /*
+         * Foot-sensorn får också utlösa slam-impact.
+         *
+         * Andra Player-sensors, t.ex. attack-hitboxes,
+         * räknas inte.
+         */
+        return "foot".equals(
+                fixture.getUserData());
+    }
+
+    private boolean isEnemyBodyFixture(
+            Fixture fixture) {
+
+        /*
+         * Range-sensors osv ska inte kunna
+         * utlösa ground slam.
+         */
+        if (fixture.isSensor()) {
+            return false;
+        }
+
+        Object owner = fixture.getBody().getUserData();
+
+        return owner instanceof Damageable
+                && !(owner instanceof Player);
     }
 
     private void checkAppleContact(Fixture a, Fixture b) {
@@ -336,7 +434,9 @@ public class GameContactListener implements ContactListener {
      * en Dog av misstag för att ta skada.
      */
     private void checkDogContact(Fixture a, Fixture b) {
-
+        if (player.isGroundSlamFalling()) {
+            return;
+        }
         Dog dog = null;
         Fixture playerFixture = null;
 

@@ -17,6 +17,8 @@ public class Player implements Damageable {
     private final PlayerController controller;
     private final PlayerAnimator animator;
 
+    private boolean groundSlamEnemyContactPending;
+
     public Player(
             World world,
             float startX,
@@ -46,6 +48,29 @@ public class Player implements Damageable {
         controller.update(
                 delta,
                 combat.blocksMovement());
+
+        /*
+         * ContactListener körs under physics.step().
+         * Vi väntar därför tills Player.update() innan vi
+         * faktiskt ändrar slam-state/skapar attack-hitbox.
+         */
+        if (groundSlamEnemyContactPending) {
+
+            controller.landGroundSlamOnEnemy();
+
+            groundSlamEnemyContactPending = false;
+        }
+
+        if (controller.didStartGroundSlam()) {
+            animator.startGroundSlam();
+        }
+
+        if (controller.didLandGroundSlam()) {
+
+            animator.landGroundSlam();
+
+            combat.startGroundSlamAttack();
+        }
 
         if (controller.didStartBackflip()) {
 
@@ -93,6 +118,22 @@ public class Player implements Damageable {
 
     public float getDashChargeTime() {
         return combat.getChargeTime();
+    }
+
+    public boolean isGroundSlamFalling() {
+        return controller.isGroundSlamFalling();
+    }
+
+    public void requestGroundSlamEnemyContact() {
+        groundSlamEnemyContactPending = true;
+    }
+
+    public boolean isGroundSlamReady() {
+        return controller.isGroundSlamReady();
+    }
+
+    public float getGroundSlamCooldownPercent() {
+        return controller.getGroundSlamCooldownPercent();
     }
 
     /*

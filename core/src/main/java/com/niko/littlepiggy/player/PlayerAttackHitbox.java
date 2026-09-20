@@ -9,7 +9,8 @@ public class PlayerAttackHitbox {
 
     public enum Type {
         DASH,
-        BACKFLIP
+        BACKFLIP,
+        SLAM,
     }
 
     private final PlayerCombat combat;

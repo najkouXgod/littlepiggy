@@ -55,6 +55,25 @@ public class PlayerCombat {
     private static final float BACKFLIP_HITBOX_HEIGHT = 0.85f;
     private static final float BACKFLIP_HITBOX_OFFSET_Y = 0.08f;
 
+    private static final float GROUND_SLAM_DAMAGE = 18f;
+
+    private static final float GROUND_SLAM_KNOCKBACK_X = 4f;
+    private static final float GROUND_SLAM_KNOCKBACK_Y = 3f;
+
+    private static final float GROUND_SLAM_HITBOX_WIDTH = 3.0f;
+    private static final float GROUND_SLAM_HITBOX_HEIGHT = 0.9f;
+    private static final float GROUND_SLAM_HITBOX_OFFSET_Y = -0.2f;
+
+    private static final float GROUND_SLAM_HITBOX_TIME = 0.14f;
+
+    private final ObjectSet<Damageable> groundSlamHitTargets = new ObjectSet<>();
+
+    private Fixture activeGroundSlamHitbox;
+
+    private float groundSlamHitboxTime;
+
+    private boolean groundSlamHasHitAnything;
+
     private final PlayerPhysics physics;
     private final GameAssets assets;
 
@@ -85,6 +104,7 @@ public class PlayerCombat {
             boolean facingLeft) {
 
         updateBackflipHitbox(delta);
+        updateGroundSlamHitbox(delta);
 
         switch (state) {
 
@@ -148,6 +168,57 @@ public class PlayerCombat {
                 }
 
                 break;
+        }
+    }
+
+    public void startGroundSlamAttack() {
+
+        if (activeGroundSlamHitbox != null) {
+
+            physics.destroyFixture(
+                    activeGroundSlamHitbox);
+        }
+
+        groundSlamHitboxTime = 0f;
+
+        groundSlamHitTargets.clear();
+
+        groundSlamHasHitAnything = false;
+
+        PlayerAttackHitbox hitboxData = new PlayerAttackHitbox(
+                this,
+                PlayerAttackHitbox.Type.SLAM);
+
+        activeGroundSlamHitbox = physics.createAttackHitbox(
+                GROUND_SLAM_HITBOX_WIDTH,
+                GROUND_SLAM_HITBOX_HEIGHT,
+                0f,
+                GROUND_SLAM_HITBOX_OFFSET_Y,
+                hitboxData);
+
+        /*
+         * Impact känns även om vi inte träffar
+         * en fiende.
+         */
+        ScreenShake.addTrauma(0.45f);
+    }
+
+    private void updateGroundSlamHitbox(float delta) {
+
+        if (activeGroundSlamHitbox == null) {
+            return;
+        }
+
+        groundSlamHitboxTime += delta;
+
+        if (groundSlamHitboxTime >= GROUND_SLAM_HITBOX_TIME) {
+
+            physics.destroyFixture(
+                    activeGroundSlamHitbox);
+
+            activeGroundSlamHitbox = null;
+
+            groundSlamHitboxTime = 0f;
         }
     }
 
@@ -282,9 +353,11 @@ public class PlayerCombat {
 
     public void hit(
             PlayerAttackHitbox.Type type,
-            Damageable target) {
+            Damageable target,
+            float targetX) {
 
         switch (type) {
+
             case DASH:
                 hitWithDash(target);
                 break;
@@ -292,7 +365,59 @@ public class PlayerCombat {
             case BACKFLIP:
                 hitWithBackflip(target);
                 break;
+
+            case SLAM:
+                hitWithGroundSlam(
+                        target,
+                        targetX);
+                break;
         }
+    }
+
+    private void hitWithGroundSlam(
+            Damageable target,
+            float targetX) {
+
+        if (activeGroundSlamHitbox == null) {
+            return;
+        }
+
+        if (groundSlamHitTargets.contains(target)) {
+            return;
+        }
+
+        groundSlamHitTargets.add(target);
+
+        /*
+         * Hit-stop bara första gången slammen
+         * träffar något, annars blir flera enemies
+         * väldigt hackigt.
+         */
+        if (!groundSlamHasHitAnything) {
+
+            HitStop.trigger(0.06f);
+
+            groundSlamHasHitAnything = true;
+        }
+
+        target.takeDamage(
+                GROUND_SLAM_DAMAGE);
+
+        float direction = Math.signum(
+                targetX - physics.getX());
+
+        if (direction == 0f) {
+            direction = 1f;
+        }
+
+        /*
+         * Knockback går ut från spelarens centrum.
+         */
+        target.applyKnockback(
+                direction
+                        * GROUND_SLAM_KNOCKBACK_X,
+                GROUND_SLAM_KNOCKBACK_Y,
+                KnockbackMode.NORMAL);
     }
 
     private void hitWithDash(Damageable target) {

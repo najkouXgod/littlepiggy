@@ -15,10 +15,19 @@ public class PlayerAnimator {
         RUNNING,
         CHARGING,
         DASHING,
-        BACKFLIP
+        BACKFLIP,
+        GROUND_SLAM_AIR,
+        GROUND_SLAM_LAND
     }
 
     private static final float BACKFLIP_FRAME_TIME = 0.055f;
+    private static final float GROUND_SLAM_FRAME_TIME = 0.06f;
+
+    private final Animation<TextureRegion> groundSlamAirAnimation;
+    private final Animation<TextureRegion> groundSlamLandAnimation;
+
+    private boolean groundSlamAirActive;
+    private boolean groundSlamLandingActive;
 
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> runningAnimation;
@@ -37,6 +46,44 @@ public class PlayerAnimator {
     private boolean backflipWasAirborne;
 
     public PlayerAnimator(GameAssets assets) {
+
+        /*
+         * Sista raden i piggysheet:
+         *
+         * row 4
+         *
+         * frames 0-3 = start/windup
+         * frames 4-6 = mark-impact
+         */
+        TextureRegion[] groundSlamAirFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                4,
+                0,
+                4,
+                64,
+                64);
+
+        groundSlamAirAnimation = new Animation<>(
+                GROUND_SLAM_FRAME_TIME,
+                groundSlamAirFrames);
+
+        groundSlamAirAnimation.setPlayMode(
+                Animation.PlayMode.NORMAL);
+
+        TextureRegion[] groundSlamLandFrames = assets.getRowFrames(
+                GameAssets.PIG_SHEET,
+                4,
+                4,
+                3,
+                64,
+                64);
+
+        groundSlamLandAnimation = new Animation<>(
+                GROUND_SLAM_FRAME_TIME,
+                groundSlamLandFrames);
+
+        groundSlamLandAnimation.setPlayMode(
+                Animation.PlayMode.NORMAL);
 
         TextureRegion[] idleFrames = assets.getRowFrames(
                 GameAssets.PIG_SHEET,
@@ -138,7 +185,13 @@ public class PlayerAnimator {
             boolean facingLeft) {
 
         hitFlash.update(delta);
+        if (groundSlamLandingActive
+                && groundSlamLandAnimation
+                        .isAnimationFinished(stateTime)) {
 
+            groundSlamLandingActive = false;
+            groundSlamAirActive = false;
+        }
         if (backflipAnimationActive && !grounded) {
             backflipWasAirborne = true;
         }
@@ -162,10 +215,23 @@ public class PlayerAnimator {
 
             backflipAnimationActive = false;
         }
+        if (groundSlamLandingActive
+                && groundSlamLandAnimation
+                        .isAnimationFinished(stateTime)) {
 
+            groundSlamLandingActive = false;
+        }
         AnimationState newState;
 
-        if (backflipAnimationActive) {
+        if (groundSlamLandingActive) {
+
+            newState = AnimationState.GROUND_SLAM_LAND;
+
+        } else if (groundSlamAirActive) {
+
+            newState = AnimationState.GROUND_SLAM_AIR;
+
+        } else if (backflipAnimationActive) {
 
             newState = AnimationState.BACKFLIP;
 
@@ -185,18 +251,34 @@ public class PlayerAnimator {
 
             newState = AnimationState.IDLE;
         }
-
         if (newState != currentState) {
 
             currentState = newState;
             stateTime = 0f;
         }
-
         stateTime += delta;
 
         TextureRegion frame;
 
         switch (currentState) {
+            case GROUND_SLAM_AIR:
+
+                /*
+                 * När de första fyra framesen är slut
+                 * hålls automatiskt sista framen medan
+                 * grisen faller.
+                 */
+                frame = groundSlamAirAnimation
+                        .getKeyFrame(stateTime);
+
+                break;
+
+            case GROUND_SLAM_LAND:
+
+                frame = groundSlamLandAnimation
+                        .getKeyFrame(stateTime);
+
+                break;
 
             case RUNNING:
 
@@ -233,6 +315,32 @@ public class PlayerAnimator {
         sprite.setPosition(
                 x - sprite.getWidth() / 2f,
                 y - sprite.getHeight() / 2f);
+    }
+
+    public void startGroundSlam() {
+
+        /*
+         * Ground slam avbryter eventuell
+         * backflip-animation.
+         */
+        backflipAnimationActive = false;
+
+        groundSlamLandingActive = false;
+        groundSlamAirActive = true;
+
+        currentState = AnimationState.GROUND_SLAM_AIR;
+
+        stateTime = 0f;
+    }
+
+    public void landGroundSlam() {
+
+        groundSlamAirActive = false;
+        groundSlamLandingActive = true;
+
+        currentState = AnimationState.GROUND_SLAM_LAND;
+
+        stateTime = 0f;
     }
 
     public void triggerFlash() {
