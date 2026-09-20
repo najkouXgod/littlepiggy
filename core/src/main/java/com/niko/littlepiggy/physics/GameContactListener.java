@@ -9,6 +9,7 @@ import com.niko.littlepiggy.player.Player;
 import com.niko.littlepiggy.enemy.farmer.Farmer;
 import com.niko.littlepiggy.enemy.dog.Dog;
 import com.niko.littlepiggy.item.Apple;
+import com.niko.littlepiggy.combat.Faction;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -379,25 +380,35 @@ public class GameContactListener implements ContactListener {
             projectile.markForRemoval();
             return;
         }
-
-        // Något som kan ta damage
         Object target = other.getBody().getUserData();
 
-        if (target == projectile.getOwner()) {
+        Object owner = projectile.getOwner();
+
+        if (target == owner) {
             return;
         }
 
-        /*
-         * Farmers hagel ska aldrig skada andra Farmers. Projektilen får
-         * fortsätta genom dem så en Farmer framför skytten inte fungerar
-         * som en osynlig skottsköld för Player.
-         */
-        if (projectile.getOwner() instanceof Farmer
-                && target instanceof Farmer) {
-            return;
+        if (owner instanceof Damageable
+                && target instanceof Damageable) {
+
+            Damageable attacker = (Damageable) owner;
+
+            Damageable victim = (Damageable) target;
+
+            /*
+             * Friendly fire av.
+             *
+             * Projektilen fortsätter genom allierade istället
+             * för att försvinna på dem.
+             */
+            if (attacker.getFaction() == victim.getFaction()) {
+
+                return;
+            }
         }
 
         if (target instanceof Damageable) {
+
             Damageable damageable = (Damageable) target;
 
             damageable.takeDamage(

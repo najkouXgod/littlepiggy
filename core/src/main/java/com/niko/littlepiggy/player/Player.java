@@ -18,6 +18,7 @@ import com.niko.littlepiggy.player.event.PlayerEventQueue;
 import com.niko.littlepiggy.player.input.PlayerInput;
 import com.niko.littlepiggy.player.movement.PlayerMovement;
 import com.niko.littlepiggy.player.physics.PlayerPhysics;
+import com.niko.littlepiggy.combat.Faction;
 
 /**
  * Tunn facade/koordinator. Player kopplar ihop subsystemen men innehåller
@@ -280,6 +281,11 @@ public class Player implements Damageable {
 
     public float getMaxHealth() {
         return playerStats.getMaxHealth();
+    }
+
+    @Override
+    public Faction getFaction() {
+        return Faction.PLAYER;
     }
 
     @Override

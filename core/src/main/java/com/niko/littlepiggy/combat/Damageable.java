@@ -18,5 +18,7 @@ public interface Damageable {
         applyKnockback(x, y);
     }
 
+    Faction getFaction();
+
     boolean isDead();
 }

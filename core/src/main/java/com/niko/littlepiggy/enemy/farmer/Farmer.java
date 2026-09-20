@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
+import com.niko.littlepiggy.combat.Faction;
 import com.niko.littlepiggy.combat.Damageable;
 import com.niko.littlepiggy.combat.KnockbackMode;
 import com.niko.littlepiggy.assets.GameAssets;
@@ -209,6 +210,11 @@ public class Farmer implements Damageable {
     @Override
     public boolean isDead() {
         return health <= 0f;
+    }
+
+    @Override
+    public Faction getFaction() {
+        return Faction.ENEMY;
     }
 
     public void destroy() {
