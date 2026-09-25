@@ -4,12 +4,12 @@
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="16" name="Goal" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt1CEOACEQBMG1YMEe/38maBwCNpdUJeNbTQQAAADAHSM74KfKWs2OeKit9ewI2Hzhwzg3AZOGAJQ=
+   eJztwTEBAAAAwqD1T20IX6AAAAAAAIDXABdwAAE=
   </data>
  </layer>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztyDEKACAMBMFo/v9nU5hOrGyEGVjIJQIAAAAAAN4b1axy391t5+H3iwUuyAAe
+   eJzt0bEKgDAMRdHYjlq6tTqq//+PfaMG6iSUwj1wh2wJMQMAAAAAAACAuWW1qNApjlvtd7s6VHl0urkO2+7t6ye+VW2upC512xz3NrPmAms=
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
@@ -19,17 +19,17 @@
  </layer>
  <layer id="14" name="Apples" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztzzEBAAAIw7D9+PeLCuAgUdAmAAAAAEyr64BFXoGvGrxwACI=
+   eJztwTEBAAAAwqD1T20IX6AAAAAAAIDXABdwAAE=
   </data>
  </layer>
  <layer id="15" name="Farmers" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0aENAAAIBLF37L8xCyBwINoJLrkEAAAAgA/qOoA1r4BJA1ysAA8=
+   eJztwTEBAAAAwqD1T20IX6AAAAAAAIDXABdwAAE=
   </data>
  </layer>
  <layer id="18" name="Dogs" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0TENAAAMw7B+48940ijs6GMjiJQEAAAAgLZpB3B8AD4WXeAADw==
+   eJztwTEBAAAAwqD1T20IX6AAAAAAAIDXABdwAAE=
   </data>
  </layer>
  <objectgroup id="19" name="PlayerSpawn">
