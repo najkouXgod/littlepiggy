@@ -9,12 +9,12 @@
  </layer>
  <layer id="11" name="Ground" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJztkrsOhSAQBVdt/AStfFXqvZX6/78miSFZLBQCajOTTAdkz2FFAAAAAAAAAAAA0lIb8wCLb8aMppIj62D8B7i9PGeZ6J1e3KyLpz55bZd6Lxpjq+zE3Red65wxk/t9uzvzE/ffUua1Xep7o3FSzgHvrR7zXJ2J8Wo+27HtMlV/sXm3h/LuCdwaUw==
+   eJztyDEKACAMBMFo/v9nU5hOrGyEGVjIJQIAAAAAAN4b1axy391t5+H3iwUuyAAe
   </data>
  </layer>
  <layer id="12" name="Decoration" width="60" height="25">
   <data encoding="base64" compression="zlib">
-   eJzt0TEKwCAMhWEp1I7FzXtk8P43K4EODlUxprj8H4gi4RlMCAAAAAAAAAAs8u4GJp2T9dcvXfTFaq3m3B93rVqVqvOx+H6LzmDHv47IuxfnXJ1Bcs70IOMSkwcl9gE6
+   eJztzgENAAAIwKC3sn8zYzg3SEABAAAAAEDNdeC5BVwwADg=
   </data>
  </layer>
  <layer id="14" name="Apples" width="60" height="25">

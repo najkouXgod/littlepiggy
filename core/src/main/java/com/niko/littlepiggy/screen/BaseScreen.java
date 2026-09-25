@@ -23,13 +23,14 @@ public abstract class BaseScreen implements Screen {
     public BaseScreen() {
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        camera.zoom = 0.7f;
         camera.position.set(WORLD_WIDTH / 2f, WORLD_HEIGHT / 2f, 0);
         camera.update();
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        viewport.update(width, height, false);
     }
 
     @Override

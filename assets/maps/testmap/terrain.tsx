@@ -3,17 +3,17 @@
  <image source="tilesheet.png" width="320" height="320"/>
  <tile id="0">
   <objectgroup draworder="index" id="2">
-   <object id="2" x="0.308322" y="14.8766" width="31.526" height="17.189"/>
+   <object id="3" x="0" y="4.72727" width="32.1818" height="27.2727"/>
   </objectgroup>
  </tile>
  <tile id="1">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="15.125" width="32" height="16.875"/>
+   <object id="2" x="0.0909091" y="5.18182" width="31.9091" height="26.9091"/>
   </objectgroup>
  </tile>
  <tile id="2">
   <objectgroup draworder="index" id="2">
-   <object id="4" x="0.181818" y="15.0909" width="31.6364" height="16.8182"/>
+   <object id="5" x="0.181818" y="5.09091" width="31.6364" height="26.8182"/>
   </objectgroup>
  </tile>
  <tile id="7">

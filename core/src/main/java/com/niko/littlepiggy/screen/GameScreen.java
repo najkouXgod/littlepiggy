@@ -274,13 +274,14 @@ public class GameScreen extends BaseScreen {
          * Sky.
          */
         batch.begin();
-
+        float viewWidth = camera.viewportWidth * camera.zoom;
+        float viewHeight = camera.viewportHeight * camera.zoom;
         batch.draw(
                 sky,
-                camera.position.x - 16f,
-                camera.position.y - 4.5f,
-                32f,
-                9f);
+                camera.position.x - viewWidth / 2f,
+                camera.position.y - viewHeight / 2f,
+                viewWidth,
+                viewHeight);
 
         batch.end();
 
@@ -382,9 +383,8 @@ public class GameScreen extends BaseScreen {
                 player.getX(),
                 minX,
                 maxX);
-
         float cameraY = MathUtils.clamp(
-                player.getY(),
+                player.getY() + camera.viewportHeight * camera.zoom * 0.25f,
                 minY,
                 maxY);
 
