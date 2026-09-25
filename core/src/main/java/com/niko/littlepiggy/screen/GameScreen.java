@@ -271,17 +271,16 @@ public class GameScreen extends BaseScreen {
                 camera.combined);
 
         /*
-         * Sky.
+         * Background anchored to the map, in world coordinates.
+         * Include the camera margins so the image covers the map edges.
          */
         batch.begin();
-        float viewWidth = camera.viewportWidth * camera.zoom;
-        float viewHeight = camera.viewportHeight * camera.zoom;
         batch.draw(
                 sky,
-                camera.position.x - viewWidth / 2f,
-                camera.position.y - viewHeight / 2f,
-                viewWidth,
-                viewHeight);
+                -CAMERA_MARGIN_X,
+                -CAMERA_MARGIN_Y,
+                level.getWorldWidth() + 2f * CAMERA_MARGIN_X,
+                level.getWorldHeight() + 2f * CAMERA_MARGIN_Y);
 
         batch.end();
 
