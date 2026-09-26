@@ -145,8 +145,10 @@ public class GameScreen extends BaseScreen {
         sky = game.getAssets().getTexture(
                 GameAssets.SKY);
 
-        // Keep the original screen-sized scale, independent of the map size.
-        backgroundHeight = camera.viewportHeight * camera.zoom;
+        // FitViewport already knows its world size, but the camera's viewport
+        // is still zero here: Game.setScreen calls resize AFTER construction.
+        // Capture a fixed world scale so movement and resizing cannot change it.
+        backgroundHeight = viewport.getWorldHeight() * camera.zoom;
         backgroundWidth = backgroundHeight * sky.getWidth() / sky.getHeight();
         sky.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
 
@@ -299,9 +301,9 @@ public class GameScreen extends BaseScreen {
                 viewWidth,
                 viewHeight,
                 uLeft,
-                vTop,
+                vBottom,
                 uRight,
-                vBottom);
+                vTop);
         batch.end();
 
         /*
