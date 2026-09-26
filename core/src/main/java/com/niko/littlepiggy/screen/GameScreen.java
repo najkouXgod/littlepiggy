@@ -67,6 +67,8 @@ public class GameScreen extends BaseScreen {
     private final AbilityHudRenderer abilityHudRenderer;
 
     private final Texture sky;
+    private final float backgroundWidth;
+    private final float backgroundHeight;
     private final SpriteBatch batch;
 
     private DebugOverlay debugOverlay;
@@ -142,6 +144,11 @@ public class GameScreen extends BaseScreen {
          */
         sky = game.getAssets().getTexture(
                 GameAssets.SKY);
+
+        // Keep the original screen-sized scale, independent of the map size.
+        backgroundHeight = camera.viewportHeight * camera.zoom;
+        backgroundWidth = backgroundHeight * sky.getWidth() / sky.getHeight();
+        sky.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
 
         batch = new SpriteBatch();
     }
@@ -271,17 +278,30 @@ public class GameScreen extends BaseScreen {
                 camera.combined);
 
         /*
-         * Background anchored to the map, in world coordinates.
-         * Include the camera margins so the image covers the map edges.
+         * Draw only the visible area, but anchor texture coordinates in the world.
+         * Repeat horizontally at a fixed scale; extend the edge rows vertically.
          */
+        float viewWidth = camera.viewportWidth * camera.zoom;
+        float viewHeight = camera.viewportHeight * camera.zoom;
+        float left = camera.position.x - viewWidth / 2f;
+        float bottom = camera.position.y - viewHeight / 2f;
+
+        float uLeft = (left + CAMERA_MARGIN_X) / backgroundWidth;
+        float uRight = (left + viewWidth + CAMERA_MARGIN_X) / backgroundWidth;
+        float vBottom = 1f - (bottom + CAMERA_MARGIN_Y) / backgroundHeight;
+        float vTop = 1f - (bottom + viewHeight + CAMERA_MARGIN_Y) / backgroundHeight;
+
         batch.begin();
         batch.draw(
                 sky,
-                -CAMERA_MARGIN_X,
-                -CAMERA_MARGIN_Y,
-                level.getWorldWidth() + 2f * CAMERA_MARGIN_X,
-                level.getWorldHeight() + 2f * CAMERA_MARGIN_Y);
-
+                left,
+                bottom,
+                viewWidth,
+                viewHeight,
+                uLeft,
+                vTop,
+                uRight,
+                vBottom);
         batch.end();
 
         /*
