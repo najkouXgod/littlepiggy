@@ -41,9 +41,6 @@ public class GameScreen extends BaseScreen {
 
     private static final float DEATH_MARGIN = 3f;
 
-    private static final float CAMERA_MARGIN_X = 2f;
-    private static final float CAMERA_MARGIN_Y = 1.5f;
-
     private static final float FIXED_TIMESTEP = 1f / 60f;
     private static final float MAX_FRAME_TIME = 0.25f;
 
@@ -288,10 +285,10 @@ public class GameScreen extends BaseScreen {
         float left = camera.position.x - viewWidth / 2f;
         float bottom = camera.position.y - viewHeight / 2f;
 
-        float uLeft = (left + CAMERA_MARGIN_X) / backgroundWidth;
-        float uRight = (left + viewWidth + CAMERA_MARGIN_X) / backgroundWidth;
-        float vBottom = 1f - (bottom + CAMERA_MARGIN_Y) / backgroundHeight;
-        float vTop = 1f - (bottom + viewHeight + CAMERA_MARGIN_Y) / backgroundHeight;
+        float uLeft = left / backgroundWidth;
+        float uRight = (left + viewWidth) / backgroundWidth;
+        float vBottom = 1f - bottom / backgroundHeight;
+        float vTop = 1f - (bottom + viewHeight) / backgroundHeight;
 
         batch.begin();
         batch.draw(
@@ -386,36 +383,23 @@ public class GameScreen extends BaseScreen {
 
         float mapHeight = level.getWorldHeight();
 
-        float minX = halfWidth
-                - CAMERA_MARGIN_X;
-
-        float maxX = mapWidth
-                - halfWidth
-                + CAMERA_MARGIN_X;
-
-        float minY = halfHeight
-                - CAMERA_MARGIN_Y;
-
-        float maxY = mapHeight
-                - halfHeight
-                + CAMERA_MARGIN_Y;
+        // Keep the visible rectangle inside the map. If a map is smaller
+        // than the view, center it instead of passing inverted clamp bounds.
+        float minX = Math.min(halfWidth, mapWidth / 2f);
+        float maxX = Math.max(mapWidth - halfWidth, mapWidth / 2f);
+        float minY = Math.min(halfHeight, mapHeight / 2f);
+        float maxY = Math.max(mapHeight - halfHeight, mapHeight / 2f);
 
         float cameraX = MathUtils.clamp(
-                player.getX(),
-                minX,
-                maxX);
+                player.getX(), minX, maxX);
         float cameraY = MathUtils.clamp(
                 player.getY() + camera.viewportHeight * camera.zoom * 0.25f,
-                minY,
-                maxY);
+                minY, maxY);
 
+        // Clamp shake as well so it cannot expose empty space at map edges.
         camera.position.set(
-                cameraX
-                        + ScreenShake.getOffsetX(),
-
-                cameraY
-                        + ScreenShake.getOffsetY(),
-
+                MathUtils.clamp(cameraX + ScreenShake.getOffsetX(), minX, maxX),
+                MathUtils.clamp(cameraY + ScreenShake.getOffsetY(), minY, maxY),
                 0f);
 
         camera.update();
