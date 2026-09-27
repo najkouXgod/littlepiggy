@@ -1,5 +1,7 @@
 package com.niko.littlepiggy.lighting;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 
@@ -68,7 +70,9 @@ public class LightingManager {
      * Ett vanligt "mysigt mörker"-värde ligger runt 0.25-0.45.
      */
     public void setAmbientLight(float amount) {
-        rayHandler.setAmbientLight(amount, amount, amount, 1f);
+        // The scalar overload controls shadow brightness. RGB + alpha=1
+        // adds a color wash instead, which can bleach the entire scene.
+        rayHandler.setAmbientLight(amount);
     }
 
     /**
@@ -114,7 +118,16 @@ public class LightingManager {
      * spelvärlden (terräng, spelare, fiender) men INNAN UI
      * (health bar, debug-overlay). Ritar ljus-lagret ovanpå scenen.
      */
-    public void update(OrthographicCamera camera) {
+    public void update(OrthographicCamera camera, Viewport viewport) {
+        // RayHandler's framebuffer otherwise restores the full-window viewport.
+        // Its custom viewport uses physical backbuffer pixels (also on HiDPI).
+        float scaleX = (float) Gdx.graphics.getBackBufferWidth() / Gdx.graphics.getWidth();
+        float scaleY = (float) Gdx.graphics.getBackBufferHeight() / Gdx.graphics.getHeight();
+        rayHandler.useCustomViewport(
+                Math.round(viewport.getScreenX() * scaleX),
+                Math.round(viewport.getScreenY() * scaleY),
+                Math.round(viewport.getScreenWidth() * scaleX),
+                Math.round(viewport.getScreenHeight() * scaleY));
         rayHandler.setCombinedMatrix(camera);
         rayHandler.updateAndRender();
     }

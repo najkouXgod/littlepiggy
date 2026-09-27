@@ -37,6 +37,7 @@ public class GameOverScreen extends BaseScreen {
 
         ScreenUtils.clear(0, 0, 0, 1);
 
+        viewport.apply();
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);

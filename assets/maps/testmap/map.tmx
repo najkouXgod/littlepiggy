@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="60" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="21" nextobjectid="172">
+ <properties>
+  <property name="backgroundWorldWidth" type="float" value="20"/>
+  <property name="backgroundGroundY" type="float" value="1"/>
+  <property name="backgroundGroundPixelY" type="int" value="730"/>
+  <property name="backgroundCropBottom" type="int" value="774"/>
+  <property name="backgroundSkyColor" value="70AEC7"/>
+  <property name="ambientLight" type="float" value="0.8"/>
+ </properties>
  <tileset firstgid="1" source="terrain.tsx"/>
  <tileset firstgid="101" source="Farmers.tsx"/>
  <layer id="16" name="Goal" width="60" height="25">

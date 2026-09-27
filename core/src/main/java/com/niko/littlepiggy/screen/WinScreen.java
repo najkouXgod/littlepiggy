@@ -50,6 +50,8 @@ public class WinScreen extends BaseScreen {
         Gdx.gl.glClear(
                 GL20.GL_COLOR_BUFFER_BIT);
 
+        viewport.apply();
+
         batch.setProjectionMatrix(
                 camera.combined);
 

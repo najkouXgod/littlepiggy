@@ -56,6 +56,10 @@ public class DebugOverlay {
         }
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
     public void render() {
 
         if (!visible) {
