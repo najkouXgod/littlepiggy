@@ -13,10 +13,10 @@ public class AbilityHudRenderer {
     private static final float WORLD_WIDTH = 16f;
     private static final float WORLD_HEIGHT = 9f;
 
-    private static final float X = 0.4f;
-    private static final float Y = 0f;
+    private static final float X = 13.6f;
+    private static final float Y = 7.8f;
 
-    private static final float SIZE = 1.5f;
+    private static final float SIZE = 0.8f;
     private static final float GAP = 0.3f;
 
     private final SpriteBatch batch;

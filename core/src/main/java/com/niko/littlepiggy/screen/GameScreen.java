@@ -1,9 +1,12 @@
 package com.niko.littlepiggy.screen;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.niko.littlepiggy.render.SideScrollerCamera;
+import com.niko.littlepiggy.render.WorldBackground;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -63,9 +66,9 @@ public class GameScreen extends BaseScreen {
     private final HealthBarRenderer healthBarRenderer;
     private final AbilityHudRenderer abilityHudRenderer;
 
-    private final Texture sky;
-    private final float backgroundWidth;
-    private final float backgroundHeight;
+    private final WorldBackground background;
+    private final SideScrollerCamera cameraFollow = new SideScrollerCamera();
+    private final Viewport hudViewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT);
     private final SpriteBatch batch;
 
     private DebugOverlay debugOverlay;
@@ -139,15 +142,10 @@ public class GameScreen extends BaseScreen {
         /*
          * Rendering
          */
-        sky = game.getAssets().getTexture(
-                GameAssets.SKY);
-
-        // FitViewport already knows its world size, but the camera's viewport
-        // is still zero here: Game.setScreen calls resize AFTER construction.
-        // Capture a fixed world scale so movement and resizing cannot change it.
-        backgroundHeight = viewport.getWorldHeight() * camera.zoom;
-        backgroundWidth = backgroundHeight * sky.getWidth() / sky.getHeight();
-        sky.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        background = new WorldBackground(game.getAssets().getTexture(GameAssets.SKY),
+                level.getMap().getTiledMap().getProperties());
+        lighting.setAmbientLight(level.getMap().getTiledMap().getProperties()
+                .get("ambientLight", 0.8f, Float.class));
 
         batch = new SpriteBatch();
     }
@@ -161,7 +159,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public void render(float rawDelta) {
 
-        ScreenUtils.clear(Color.BLUE);
+        ScreenUtils.clear(Color.BLACK);
 
         /*
          * Hit stop uppdateras med riktig frame-delta.
@@ -273,34 +271,10 @@ public class GameScreen extends BaseScreen {
 
     private void renderWorld() {
 
-        batch.setProjectionMatrix(
-                camera.combined);
-
-        /*
-         * Draw only the visible area, but anchor texture coordinates in the world.
-         * Repeat horizontally at a fixed scale; extend the edge rows vertically.
-         */
-        float viewWidth = camera.viewportWidth * camera.zoom;
-        float viewHeight = camera.viewportHeight * camera.zoom;
-        float left = camera.position.x - viewWidth / 2f;
-        float bottom = camera.position.y - viewHeight / 2f;
-
-        float uLeft = left / backgroundWidth;
-        float uRight = (left + viewWidth) / backgroundWidth;
-        float vBottom = 1f - bottom / backgroundHeight;
-        float vTop = 1f - (bottom + viewHeight) / backgroundHeight;
-
+        viewport.apply();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(
-                sky,
-                left,
-                bottom,
-                viewWidth,
-                viewHeight,
-                uLeft,
-                vBottom,
-                uRight,
-                vTop);
+        background.render(batch, camera);
         batch.end();
 
         /*
@@ -320,7 +294,9 @@ public class GameScreen extends BaseScreen {
          *
          * Vi kan senare koppla detta till F1/debug-mode.
          */
-        physics.renderDebug(camera);
+        if (debugOverlay != null && debugOverlay.isVisible()) {
+            physics.renderDebug(camera);
+        }
 
         /*
          * Entities.
@@ -336,10 +312,12 @@ public class GameScreen extends BaseScreen {
         /*
          * Lights.
          */
-        lighting.update(camera);
+        lighting.update(camera, viewport);
     }
 
     private void renderHud(float delta) {
+
+        hudViewport.apply();
 
         healthBarRenderer.render(
                 player.getHealth(),
@@ -352,6 +330,9 @@ public class GameScreen extends BaseScreen {
 
         if (debugOverlay != null) {
 
+            // Debug overlay uses physical window coordinates.
+            Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(),
+                    Gdx.graphics.getBackBufferHeight());
             debugOverlay.update(delta);
             debugOverlay.render();
         }
@@ -371,36 +352,16 @@ public class GameScreen extends BaseScreen {
 
         ScreenShake.update(delta);
 
-        float halfWidth = camera.viewportWidth
-                * camera.zoom
-                / 2f;
-
-        float halfHeight = camera.viewportHeight
-                * camera.zoom
-                / 2f;
-
-        float mapWidth = level.getWorldWidth();
-
-        float mapHeight = level.getWorldHeight();
-
-        // Keep the visible rectangle inside the map. If a map is smaller
-        // than the view, center it instead of passing inverted clamp bounds.
-        float minX = Math.min(halfWidth, mapWidth / 2f);
-        float maxX = Math.max(mapWidth - halfWidth, mapWidth / 2f);
-        float minY = Math.min(halfHeight, mapHeight / 2f);
-        float maxY = Math.max(mapHeight - halfHeight, mapHeight / 2f);
-
-        float cameraX = MathUtils.clamp(
-                player.getX(), minX, maxX);
-        float cameraY = MathUtils.clamp(
-                player.getY() + camera.viewportHeight * camera.zoom * 0.25f,
-                minY, maxY);
-
-        // Clamp shake as well so it cannot expose empty space at map edges.
+        float viewWidth = viewport.getWorldWidth() * camera.zoom;
+        float viewHeight = viewport.getWorldHeight() * camera.zoom;
+        cameraFollow.update(player.getX(), player.getY(), player.getVelocity().x, delta,
+                viewWidth, viewHeight, level.getWorldWidth(), level.getWorldHeight());
+        // Shake is a render offset, never fed back into the tracking state.
         camera.position.set(
-                MathUtils.clamp(cameraX + ScreenShake.getOffsetX(), minX, maxX),
-                MathUtils.clamp(cameraY + ScreenShake.getOffsetY(), minY, maxY),
-                0f);
+                SideScrollerCamera.clampCenter(cameraFollow.getX() + ScreenShake.getOffsetX(),
+                        viewWidth, level.getWorldWidth()),
+                SideScrollerCamera.clampCenter(cameraFollow.getY() + ScreenShake.getOffsetY(),
+                        viewHeight, level.getWorldHeight()), 0f);
 
         camera.update();
     }
@@ -414,6 +375,9 @@ public class GameScreen extends BaseScreen {
                 width,
                 height);
 
+        hudViewport.update(width, height, true);
+        updateCamera(0f);
+
         if (debugOverlay != null) {
 
             debugOverlay.resize(
@@ -425,6 +389,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public void dispose() {
 
+        background.dispose();
         batch.dispose();
 
         level.dispose();
